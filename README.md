@@ -25,7 +25,7 @@ Works with both Audio Pro speaker generations, and you can mix them in one group
 
 ## Install
 
-1. Download **AudioProControl-3.1.zip** from [Releases](../../releases/latest) (or **Code → Download ZIP** on this page) and unzip it anywhere.
+1. On this page, click the green **Code** button → **Download ZIP**, and unzip it anywhere.
 2. Double-click **Install.bat**. It also updates an older version.
    - If Windows asks whether to run it, choose **Run** (or **More info → Run anyway**).
    - If Python 3 isn't installed, the installer fetches it with `winget` (one time, about 30 MB).
