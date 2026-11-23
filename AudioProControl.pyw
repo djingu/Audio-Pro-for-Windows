@@ -48,7 +48,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 APP_NAME = "Audio Pro Control"
-APP_VERSION = "3.2"
+APP_VERSION = "3.3"
 
 # Ports to try, in order. Override for testing with APC_PROBE="https:4443,http:80"
 DEFAULT_PROBES = [("https", 4443), ("http", 80), ("https", 443), ("https", 8443)]
@@ -2056,6 +2056,106 @@ def open_in_browser(url: str):
         pass
 
 
+class SpotifyDesktop:
+    """The Spotify app on this PC. An idle Audio Pro speaker only joins your Spotify account when a
+    Spotify app on the home network hands it over; Spotify's servers can't do that by themselves.
+    So when a speaker doesn't respond, the app opens Spotify here (minimised) to do the hand-over."""
+
+    def __init__(self):
+        self.fake = os.environ.get("APC_FAKE_SPOTIFY_DESKTOP", "")     # tests: a URL to poke instead
+
+    def running(self) -> bool:
+        if self.fake:
+            try:
+                with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(self.fake + "/running", timeout=3) as r:
+                    return r.read().strip() == b"1"
+            except OSError:
+                return False
+        if os.name != "nt":
+            return False
+        import subprocess
+        try:
+            out = subprocess.run(["tasklist", "/FI", "IMAGENAME eq Spotify.exe", "/NH", "/FO", "CSV"],
+                                 capture_output=True, text=True, timeout=8,
+                                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout
+        except (OSError, subprocess.SubprocessError):
+            return False
+        return "spotify.exe" in out.lower()
+
+    def start(self) -> bool:
+        """Open Spotify minimised. False if it doesn't seem to be installed."""
+        if self.fake:
+            try:
+                urllib.request.build_opener(urllib.request.ProxyHandler({})).open(
+                    urllib.request.Request(self.fake + "/start", data=b"", method="POST"), timeout=3).read()
+                return True
+            except OSError:
+                return False
+        if os.name != "nt":
+            return False
+        import subprocess
+        exe = os.path.join(os.environ.get("APPDATA", ""), "Spotify", "Spotify.exe")
+        try:
+            if os.path.isfile(exe):          # the installer from spotify.com
+                subprocess.Popen([exe, "--minimized"], close_fds=True,
+                                 creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
+            else:                            # the Microsoft Store version, via its spotify: link
+                os.startfile("spotify:")
+        except OSError:
+            return False
+        threading.Thread(target=self._minimise, daemon=True).start()
+        return True
+
+    @staticmethod
+    def _minimise():
+        """Keep Spotify's window out of the way if it opened in front."""
+        try:
+            import ctypes
+            from ctypes import wintypes
+            user32, kernel32 = ctypes.windll.user32, ctypes.windll.kernel32
+            proto = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+            kernel32.OpenProcess.restype = wintypes.HANDLE
+            kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+            kernel32.QueryFullProcessImageNameW.argtypes = [wintypes.HANDLE, wintypes.DWORD,
+                                                            wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
+            kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+
+            def is_spotify(hwnd) -> bool:
+                pid = wintypes.DWORD()
+                user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+                h = kernel32.OpenProcess(0x1000, False, pid.value)      # QUERY_LIMITED_INFORMATION
+                if not h:
+                    return False
+                try:
+                    buf = ctypes.create_unicode_buffer(520)
+                    size = wintypes.DWORD(520)
+                    if not kernel32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(size)):
+                        return False
+                    return os.path.basename(buf.value).lower() == "spotify.exe"
+                finally:
+                    kernel32.CloseHandle(h)
+            end = time.time() + 25
+            first = 0.0
+            while time.time() < end:
+                found = []
+
+                def each(hwnd, _):
+                    if user32.IsWindowVisible(hwnd) and not user32.IsIconic(hwnd) \
+                            and user32.GetWindowTextLengthW(hwnd) > 0 and is_spotify(hwnd):
+                        found.append(hwnd)
+                    return True
+                user32.EnumWindows(proto(each), 0)
+                for hwnd in found:
+                    user32.ShowWindow(hwnd, 7)          # minimised, without taking the focus
+                if found and not first:
+                    first = time.time()
+                if first and time.time() - first > 10:  # a splash window may come before the main one
+                    return
+                time.sleep(0.4)
+        except Exception:
+            pass
+
+
 class SpotifyClient:
     """Signs in with PKCE (no client secret on this PC) and calls the Spotify Web API."""
 
@@ -2083,6 +2183,8 @@ class SpotifyClient:
         self.device_ids: dict[str, str] = ({str(k): str(v) for k, v in ids.items() if v}
                                            if isinstance(ids, dict) else {})
         self.error = ""
+        self.note = ""                       # shown while something slow happens
+        self.desktop = SpotifyDesktop()
         self._pending: dict[str, tuple[str, float]] = {}
         self._devices: tuple[list, float] = ([], 0.0)
 
@@ -2095,7 +2197,7 @@ class SpotifyClient:
 
     def status(self) -> dict:
         return {"configured": bool(self.client_id), "connected": bool(self.refresh_token),
-                "user": self.user, "error": self.error, "redirect": self.redirect_uri,
+                "user": self.user, "error": self.error, "redirect": self.redirect_uri, "note": self.note,
                 "client_id": self.client_id}
 
     def _forget_tokens(self):
@@ -2521,6 +2623,29 @@ class SpotifyClient:
 
     def player(self) -> dict:
         return self.api("GET", "/me/player")
+
+    def wake_through_desktop(self, timeout: float = 20.0) -> str:
+        """Make sure the Spotify app on this PC is running, so it can hand an idle speaker over.
+        Returns 'running' (it already was), 'started' or 'missing'. After starting it, waits (up to
+        `timeout`) for it to sign in; Spotify may also keep an old entry for this PC, so the caller
+        keeps retrying the speaker rather than relying on this alone."""
+        if self.desktop.running():
+            return "running"
+        before = {d.get("id") for d in self.devices(fresh=True) if str(d.get("type") or "").lower() == "computer"}
+        if not self.desktop.start():
+            return "missing"
+        host = _sp_norm(socket.gethostname())
+        end = time.time() + timeout
+        while time.time() < end:
+            time.sleep(1.5)
+            try:
+                comps = [d for d in self.devices(fresh=True) if str(d.get("type") or "").lower() == "computer"]
+            except SpeakerError:
+                continue
+            if any(d.get("id") not in before or _sp_norm(d.get("name")) == host for d in comps):
+                time.sleep(3.0)              # give it a moment to find the speakers on the network
+                return "started"
+        return "started"
 
     def transfer(self, dev: dict, play: bool = True):
         self.api("PUT", "/me/player", None, {"device_ids": [dev["id"]], "play": play})
@@ -3600,27 +3725,50 @@ class Controller:
             q.active = False                         # Spotify takes over from the music on this PC
         res: dict = {}
         sp_title = ""
-        attempts = cands[:3]
-        for i, dev in enumerate(attempts):
+
+        def attempt(dev, wait):
+            nonlocal res
             if c is not None:
                 res = spot.play(lead.key, lead.name, c, device=dev)
             else:
                 spot.transfer(dev, play=True)
                 res = {"device": dev["name"], "device_id": dev["id"]}
-            ok, sp_title = self._spotify_confirm(lead, before, 9.0 if i == 0 else 7.0)
-            if ok:
-                spot.remember(lead.key, dev)
-                return res
-        # Still not playing what Spotify says. Ask Spotify once more to hand the music over.
+            return self._spotify_confirm(lead, before, wait)
+
+        def note(text):
+            spot.note = text
+            self.changed()
         try:
-            spot.transfer(attempts[0], play=True)
-            ok, sp_title = self._spotify_confirm(lead, before, 7.0)
-            if ok:
-                spot.remember(lead.key, attempts[0])
-                return res
-        except SpeakerError:
-            pass
-        return {**res, "mismatch": True, "spotify_title": sp_title, "speaker_title": lead.title}
+            for i, dev in enumerate(cands[:3]):
+                ok, sp_title = attempt(dev, 8.0 if i == 0 else 6.0)
+                if ok:
+                    spot.remember(lead.key, dev)
+                    return res
+            # The speaker didn't take it: it isn't signed in to Spotify right now. Only a Spotify app
+            # on this network can hand it over, so make sure the one on this PC is running.
+            note(f"Waking {lead.name} through Spotify on this PC…")
+            desktop = spot.wake_through_desktop()
+            if desktop in ("started", "running"):
+                fresh = spot.device_candidates(lead.key, lead.name, fresh=True) or cands
+                tries = [fresh[0]] * (3 if desktop == "started" else 1) + fresh[1:2]
+                for dev in tries:              # a freshly opened Spotify may need a few seconds more
+                    ok, sp_title = attempt(dev, 9.0)
+                    if ok:
+                        spot.remember(lead.key, dev)
+                        return {**res, "woke": desktop}
+                try:                           # last try: ask Spotify to move playback there
+                    spot.transfer(fresh[0], play=True)
+                    ok, sp_title = self._spotify_confirm(lead, before, 8.0)
+                    if ok:
+                        spot.remember(lead.key, fresh[0])
+                        return {**res, "woke": desktop}
+                except SpeakerError:
+                    pass
+        finally:
+            if spot.note:
+                note("")
+        return {**res, "mismatch": True, "spotify_title": sp_title, "speaker_title": lead.title,
+                "desktop": desktop, "idle": lead.source_label() != "Spotify Connect"}
 
 
 _picking = threading.Lock()

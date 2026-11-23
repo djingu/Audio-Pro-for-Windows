@@ -28,7 +28,7 @@ Works with both Audio Pro speaker generations, and you can mix them in one group
 
 ## Install
 
-1. Download **AudioProControl-3.2.zip** (or the newest version) from the [latest release](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest) and unzip it anywhere. (Or click the green **Code** button on this page → **Download ZIP**; it contains the same files.)
+1. Download **AudioProControl-3.3.zip** (or the newest version) from the [latest release](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest) and unzip it anywhere. (Or click the green **Code** button on this page → **Download ZIP**; it contains the same files.)
 2. Double-click **Install.bat**. It also updates an older version.
    - If Windows asks whether to run it, choose **Run** (or **More info → Run anyway**).
    - If Python 3 isn't installed, the installer fetches it with `winget` (one time, about 30 MB).
@@ -56,7 +56,8 @@ The Spotify tab walks you through this. It takes about two minutes, once. Spotif
 Good to know:
 
 - You don't need the *Client secret*. The app signs in with PKCE, and the sign-in is stored only on your PC in `%APPDATA%\AudioProControl\spotify.json`. **Disconnect** at the bottom of the Spotify page removes it.
-- **"<speaker> didn't switch to your Spotify"** or **"Spotify and <speaker> disagree":** after starting Spotify, the app checks with the speaker itself that it really switched. If it keeps playing something else, another phone or another Spotify account is using the speaker. Stop the music there (or pick another device in that Spotify app), then press **Take over** or try again.
+- **Install the Spotify app on the PC too** (logged in to the same account). An Audio Pro speaker that hasn't played Spotify for a while is signed out, and only a Spotify app on your home network can hand it back in; Spotify's servers can't. When a speaker doesn't respond, Audio Pro Control opens Spotify on the PC minimised to do that, then tries again. Without it, start something on the speaker from Spotify on your phone once.
+- **"<speaker> didn't start your Spotify"** or **"Spotify and <speaker> disagree":** after starting Spotify, the app checks with the speaker itself that it really switched. If it keeps playing something else, another phone or another Spotify account is using the speaker. Stop the music there (or pick another device in that Spotify app), then press **Take over** or try again.
 - **"Spotify can't see <speaker>":** Spotify only lists speakers that are switched on and have been played to from your account. Pick the speaker once in the Spotify app on your phone (the devices button), and it works from then on. If Spotify knows the speaker by another name, choose that name in the same message.
 - Spotify's rules for personal developer apps (since February 2026): the app can list the songs only in playlists you made or collaborate on. Other playlists, such as Spotify's own, still play with the play button. Searches show the top 10 results of each kind, and a personal app can be used by up to 5 Spotify accounts.
 

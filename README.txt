@@ -1,4 +1,4 @@
-AUDIO PRO CONTROL 3.2  -  control your Audio Pro speakers from Windows
+AUDIO PRO CONTROL 3.3  -  control your Audio Pro speakers from Windows
 =====================================================================
 
 INSTALL / UPDATE
@@ -60,6 +60,13 @@ SPOTIFY (middle, "Spotify" tab at the top)  - new in 3.1
     if this PC sleeps. "Next up" on the right shows Spotify's queue.
   - Grouped speakers: Spotify plays on the group's main speaker and the
     others follow, like any other music.
+  - Idle speakers (3.3): an Audio Pro speaker that hasn't played Spotify for
+    a while is signed out of your account, and only a Spotify app on your
+    home network can hand it back in. If a speaker doesn't respond, the app
+    opens the Spotify app on this PC (minimised) to do that, then tries
+    again. Install Spotify on this PC and log in with the same account; it
+    can stay closed otherwise. Without it, start something on the speaker
+    from Spotify on your phone once.
   - "Spotify can't see <speaker>": Spotify only lists speakers that are on
     and have been played to from your account. Pick the speaker once in the
     Spotify app on your phone (devices button). If Spotify knows the speaker

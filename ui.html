@@ -451,12 +451,13 @@ async function api(action, params={}, quiet=false) {
 }
 
 let toastTimer;
-function toast(msg) {
+function toast(msg, sticky) {
   document.querySelectorAll('.toast').forEach(t => t.remove());
+  clearTimeout(toastTimer);
   if (!msg) return;
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.remove(), Math.min(9000, 2500 + msg.length * 45));
+  document.body.appendChild(t);
+  if (!sticky) toastTimer = setTimeout(() => t.remove(), Math.min(9000, 2500 + msg.length * 45));
 }
 
 // ---------- model helpers ----------
@@ -1331,7 +1332,7 @@ function spSyncPlayBtn() {
 async function spStart(params) {
   const t = needSpeaker(); if (!t) return;
   toast(`Starting Spotify on ${groupName(t)}…`);
-  const slow = setTimeout(() => toast(`Checking that ${t.name} switched over…`), 3500);
+  const slow = setTimeout(() => toast(`Checking that ${t.name} switched over…`, true), 3500);
   const j = await api('sp_play', {id: t.id, shuffle: spShuffle, ...params});
   clearTimeout(slow);
   spAfterStart(t, j, () => spStart(params));
@@ -1344,13 +1345,19 @@ async function spTakeOver(t) {
   if (j.ok && j.need_device) spLinkModal(t, j.devices || [], {});
 }
 function spAfterStart(t, j, retry) {
-  toast('');
+  toast(j.ok && j.woke === 'started' ? `Spotify on this PC woke ${t.name}.` : '');
   spUp.at = 0; spUp.mm = null;
   setTimeout(() => spUpdateUpNext(target(), true), 600);
   if (!j.ok || j.need_device || !j.mismatch) return;
-  const s = modal(`<h3>${esc(t.name)} didn't switch to your Spotify</h3>
-    <p>Spotify says it's playing ${j.spotify_title ? `<b>${esc(j.spotify_title)}</b>` : 'your music'} on ${esc(t.name)}, but the speaker is still playing ${j.speaker_title ? `<b>${esc(j.speaker_title)}</b>` : 'something else'}.</p>
-    <p>Something else is using the speaker's Spotify right now, usually another phone or another Spotify account (someone else in the family, say). Stop the music in that Spotify app, or pick another device there, then try again.</p>
+  const name = esc(t.name);
+  let body;
+  if (j.idle && j.desktop === 'missing') body = `<p>${name} isn't signed in to your Spotify right now. A Spotify app on your home network has to hand it over the first time, and Spotify isn't installed on this PC.</p>
+    <p>Either start any music on ${name} once from Spotify on your phone, or install the Spotify app on this PC. It can stay closed; this app opens it in the background when a speaker needs waking.</p>`;
+  else if (j.idle) body = `<p>${name} isn't signed in to your Spotify right now, and Spotify on this PC couldn't wake it.</p>
+    <p>Check that Spotify on this PC is logged in to the same account (${esc(S.spotify.user || 'yours')}), or start any music on ${name} once from Spotify on your phone, then try again.</p>`;
+  else body = `<p>Spotify says it's playing ${j.spotify_title ? `<b>${esc(j.spotify_title)}</b>` : 'your music'} on ${name}, but the speaker is still playing ${j.speaker_title ? `<b>${esc(j.speaker_title)}</b>` : 'something else'}.</p>
+    <p>Something else is using the speaker's Spotify right now, usually another phone or another Spotify account (someone else in the family, say). Stop the music in that Spotify app, or pick another device there, then try again.</p>`;
+  const s = modal(`<h3>${name} didn't start your Spotify</h3>${body}
     <div class="btns"><button class="pill ghost" data-x>Close</button><button class="pill solid" data-retry>Try again</button></div>`);
   s.querySelector('[data-retry]').onclick = () => { s.remove(); retry(); };
 }
@@ -1520,9 +1527,10 @@ function render() {
   if (!lastToastTs) lastToastTs = S.toast_ts || 1;
 }
 
-let spWasConnected = null;
+let spWasConnected = null, spNote = '';
 function renderSpotifyState() {
-  const sp = S.spotify, sig = JSON.stringify(sp);
+  const sp = S.spotify, sig = JSON.stringify({...sp, note: ''});
+  if (sp.note !== spNote) { spNote = sp.note; if (spNote) toast(spNote, true); }
   if (sig !== spSig) {
     spSig = sig;
     if (spWasConnected !== sp.connected) {
