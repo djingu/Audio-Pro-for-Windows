@@ -1,4 +1,4 @@
-AUDIO PRO CONTROL 3.1  -  control your Audio Pro speakers from Windows
+AUDIO PRO CONTROL 3.2  -  control your Audio Pro speakers from Windows
 =====================================================================
 
 INSTALL / UPDATE
@@ -64,6 +64,11 @@ SPOTIFY (middle, "Spotify" tab at the top)  - new in 3.1
     and have been played to from your account. Pick the speaker once in the
     Spotify app on your phone (devices button). If Spotify knows the speaker
     by another name, pick that name in the same message.
+  - "<speaker> didn't switch to your Spotify" / "Spotify and <speaker>
+    disagree" (3.2): after starting, the app checks with the speaker itself.
+    If the speaker keeps playing something else, another phone or another
+    Spotify account is using it. Stop the music there (or pick another
+    device in that Spotify app), then press "Take over" or try again.
   - Spotify's rules for personal developer apps: you can only see the songs
     of playlists you made or collaborate on. Other playlists (e.g. Spotify's
     own) still play with the play button. Searches show the top 10 of each kind.

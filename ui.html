@@ -208,6 +208,10 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .card{background:var(--raise);border-radius:8px;padding:14px 16px;margin-top:16px}
 .card h3{font-size:15px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between}
 .card h3 small{font-weight:400;color:var(--muted);font-size:12px}
+.card.warn{border:1px solid rgba(245,155,35,.45)}
+.card.warn h3{color:#f59b23;justify-content:flex-start;gap:8px}
+.card.warn p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.5}
+.card.warn p b{color:#fff;font-weight:600}
 .sources{display:flex;flex-wrap:wrap;gap:8px}
 .src{height:32px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.08);font-size:13px;transition:.15s;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .src:hover{background:rgba(255,255,255,.16)}
@@ -919,9 +923,10 @@ function renderNow(force) {
   }
   const presets = t.presets && t.presets.length ? `<div class="card"><h3>Presets <small>saved on the speaker</small></h3><div class="sources">${t.presets.map(p =>
       `<button class="src" data-preset="${p.n}" title="${esc(p.name)}"><b>${p.n}</b>${esc(p.name)}</button>`).join('')}</div></div>` : '';
-  if (!up && t.source === 'Spotify Connect') up = spUpNextHtml(t);
+  const warn = t.source === 'Spotify Connect' ? spMismatchHtml(t) : '';
+  if (!up && t.source === 'Spotify Connect' && !warn) up = spUpNextHtml(t);
   const art = spArtFor(t);
-  const sig = JSON.stringify([t.id, groupName(t), art, t.title, t.artist, t.album, t.source, t.input, t.inputs, t.presets, up, t.status, t.state, t.error, t.model, t.generation]);
+  const sig = JSON.stringify([t.id, groupName(t), art, t.title, t.artist, t.album, t.source, t.input, t.inputs, t.presets, up, warn, t.status, t.state, t.error, t.model, t.generation]);
   if (!force && el.dataset.sig === sig) return;
   el.dataset.sig = sig;
   const idle = t.status === 'offline' ? 'Offline' : t.status === 'connecting' ? 'Connecting…' : t.state === 'play' ? (t.source || 'Playing') : 'Nothing playing';
@@ -933,6 +938,7 @@ function renderNow(force) {
     <h2>${esc(t.title || idle)}</h2>
     <div class="by">${esc(t.artist || (t.title ? t.album : hint))}</div>
     ${t.source && t.title ? `<div style="margin:12px 4px 0"><span class="chip" style="font-size:12px">${esc(t.source)}</span></div>` : ''}
+    ${warn}
     ${presets}
     <div class="card"><h3>Input</h3><div class="sources">${t.inputs.map(s => `<button class="src ${s.key === t.input ? 'on' : ''}" data-src="${esc(s.key)}">${esc(s.label)}</button>`).join('')}</div></div>
     ${up}
@@ -943,7 +949,8 @@ $('now').addEventListener('click', e => {
   const t = target(); if (!t) return;
   const b = e.target.closest('[data-src]'); if (b) { api('input', {id: t.id, value: b.dataset.src}); return; }
   const p = e.target.closest('[data-preset]'); if (p) { api('preset', {id: t.id, value: +p.dataset.preset}); return; }
-  const j = e.target.closest('[data-jump]'); if (j) api('queue_jump', {id: t.id, index: +j.dataset.jump});
+  const j = e.target.closest('[data-jump]'); if (j) { api('queue_jump', {id: t.id, index: +j.dataset.jump}); return; }
+  if (e.target.closest('[data-takeover]')) spTakeOver(t);
 });
 
 // ---------- player bar ----------
@@ -1324,11 +1331,28 @@ function spSyncPlayBtn() {
 async function spStart(params) {
   const t = needSpeaker(); if (!t) return;
   toast(`Starting Spotify on ${groupName(t)}…`);
+  const slow = setTimeout(() => toast(`Checking that ${t.name} switched over…`), 3500);
   const j = await api('sp_play', {id: t.id, shuffle: spShuffle, ...params});
-  if (!j.ok) return;
-  if (j.need_device) { toast(''); spLinkModal(t, j.devices || [], params); return; }
+  clearTimeout(slow);
+  spAfterStart(t, j, () => spStart(params));
+  if (j.ok && j.need_device) spLinkModal(t, j.devices || [], params);
+}
+async function spTakeOver(t) {
+  toast(`Moving your Spotify to ${t.name}…`);
+  const j = await api('sp_takeover', {id: t.id});
+  spAfterStart(t, j, () => spTakeOver(t));
+  if (j.ok && j.need_device) spLinkModal(t, j.devices || [], {});
+}
+function spAfterStart(t, j, retry) {
   toast('');
-  spUp.at = 0; setTimeout(() => spUpdateUpNext(target(), true), 2500);
+  spUp.at = 0; spUp.mm = null;
+  setTimeout(() => spUpdateUpNext(target(), true), 600);
+  if (!j.ok || j.need_device || !j.mismatch) return;
+  const s = modal(`<h3>${esc(t.name)} didn't switch to your Spotify</h3>
+    <p>Spotify says it's playing ${j.spotify_title ? `<b>${esc(j.spotify_title)}</b>` : 'your music'} on ${esc(t.name)}, but the speaker is still playing ${j.speaker_title ? `<b>${esc(j.speaker_title)}</b>` : 'something else'}.</p>
+    <p>Something else is using the speaker's Spotify right now, usually another phone or another Spotify account (someone else in the family, say). Stop the music in that Spotify app, or pick another device there, then try again.</p>
+    <div class="btns"><button class="pill ghost" data-x>Close</button><button class="pill solid" data-retry>Try again</button></div>`);
+  s.querySelector('[data-retry]').onclick = () => { s.remove(); retry(); };
 }
 function spLinkModal(t, devices, params) {
   const s = modal(`<h3>Spotify can't see ${esc(t.name)}</h3>
@@ -1454,14 +1478,27 @@ function spArtFor(t) {
 }
 function spUpWanted(t) { return !!(t && S.spotify && S.spotify.connected && t.online && t.source === 'Spotify Connect' && t.state !== 'stop'); }
 async function spUpdateUpNext(t, force) {
-  if (!spUpWanted(t)) { if (spUp.data) { spUp = {key: '', at: 0, data: null, busy: false}; renderNow(); markSpRows(); } return; }
+  if (!spUpWanted(t)) { if (spUp.data || spUp.mm) { spUp = {key: '', at: 0, data: null, busy: false, mm: null}; renderNow(); markSpRows(); } return; }
   const key = t.id + '|' + t.title;
   if (spUp.busy || (!force && spUp.key === key && Date.now() - spUp.at < 30000)) return;
   spUp.busy = true; spUp.key = key; spUp.at = Date.now();
   const j = await api('sp_upnext', {id: t.id}, true);
   spUp.busy = false;
   spUp.data = j.ok && j.playing_here ? j : null;
+  if (j.ok && j.mismatch) {
+    // only call it a mismatch if it lasts: right after a song change the two may differ briefly
+    if (!spUp.mm || spUp.mm.key !== key) spUp.mm = {key, first: Date.now(), j};
+    else spUp.mm.j = j;
+    if (Date.now() - spUp.mm.first < 4000) setTimeout(() => spUpdateUpNext(target(), true), 5000);
+  } else spUp.mm = null;
   renderNow(); renderBar(); markSpRows();
+}
+function spMismatchHtml(t) {
+  const m = spUp.mm;
+  if (!m || !m.key.startsWith(t.id + '|') || Date.now() - m.first < 4000) return '';
+  return `<div class="card warn"><h3>${ic('note')}Spotify and ${esc(t.name)} disagree</h3>
+    <p>Your Spotify says it's playing <b>${esc(m.j.spotify_title)}</b> here, but the speaker is playing <b>${esc(m.j.speaker_title)}</b>. Another phone or Spotify account is probably using the speaker.</p>
+    <button class="pill light small" data-takeover>Take over</button></div>`;
 }
 function spUpNextHtml(t) {
   if (!spUp.data || !spUp.key.startsWith(t.id + '|') || !spUp.data.next.length) return '';

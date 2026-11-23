@@ -48,7 +48,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 APP_NAME = "Audio Pro Control"
-APP_VERSION = "3.1"
+APP_VERSION = "3.2"
 
 # Ports to try, in order. Override for testing with APC_PROBE="https:4443,http:80"
 DEFAULT_PROBES = [("https", 4443), ("http", 80), ("https", 443), ("https", 8443)]
@@ -1958,6 +1958,17 @@ def _sp_norm(name: str) -> str:
     return re.sub(r"[\W_]+", "", unicodedata.normalize("NFKC", str(name or "")).casefold())
 
 
+def titles_match(a: str, b: str) -> bool:
+    """Same song? The speaker and Spotify may word a title slightly differently."""
+    na, nb = _sp_norm(a), _sp_norm(b)
+    if not na or not nb:
+        return False
+    if na == nb:
+        return True
+    short, long_ = sorted((na, nb), key=len)
+    return len(short) >= 4 and long_.startswith(short)
+
+
 def _sp_img(images, small: bool = False) -> str:
     imgs = [i for i in images or [] if isinstance(i, dict) and i.get("url")]
     if not imgs:
@@ -2068,6 +2079,9 @@ class SpotifyClient:
         links = d.get("links")
         self.links: dict[str, str] = ({str(k): str(v) for k, v in links.items() if v}
                                       if isinstance(links, dict) else {})
+        ids = d.get("device_ids")
+        self.device_ids: dict[str, str] = ({str(k): str(v) for k, v in ids.items() if v}
+                                           if isinstance(ids, dict) else {})
         self.error = ""
         self._pending: dict[str, tuple[str, float]] = {}
         self._devices: tuple[list, float] = ([], 0.0)
@@ -2076,7 +2090,8 @@ class SpotifyClient:
     def _save(self):
         write_json(self.path, {"client_id": self.client_id, "refresh_token": self.refresh_token,
                                "access_token": self.access_token, "expires_at": self.expires_at,
-                               "user": self.user, "user_id": self.user_id, "links": self.links}, indent=2)
+                               "user": self.user, "user_id": self.user_id, "links": self.links,
+                               "device_ids": self.device_ids}, indent=2)
 
     def status(self) -> dict:
         return {"configured": bool(self.client_id), "connected": bool(self.refresh_token),
@@ -2113,6 +2128,7 @@ class SpotifyClient:
             self._forget_tokens()
             self.client_id = ""
             self.links = {}
+            self.device_ids = {}
             self.error = ""
             self._save()
         self.on_change()
@@ -2122,7 +2138,14 @@ class SpotifyClient:
             self.links[speaker_key] = device_name
         else:
             self.links.pop(speaker_key, None)
+        self.device_ids.pop(speaker_key, None)
         self._save()
+
+    def remember(self, speaker_key: str, dev: dict):
+        """The Spotify device that really is this speaker (Spotify may list a speaker twice)."""
+        if dev.get("id") and self.device_ids.get(speaker_key) != dev["id"]:
+            self.device_ids[speaker_key] = dev["id"]
+            self._save()
 
     # -- signing in --------------------------------------------------------------------
     def auth_url(self) -> str:
@@ -2463,26 +2486,46 @@ class SpotifyClient:
         self._devices = (devs, time.time())
         return devs
 
-    def device_for(self, speaker_key: str, speaker_name: str, fresh: bool = False) -> dict | None:
+    def device_candidates(self, speaker_key: str, speaker_name: str, fresh: bool = False) -> list[dict]:
+        """Spotify devices that may be this speaker, the likeliest first. Spotify sometimes lists
+        the same speaker twice (an old entry and the live one), so all same-named ones count."""
         devs = self.devices(fresh)
+        out: list[dict] = []
+
+        def add(d):
+            if d.get("id") and all(x.get("id") != d["id"] for x in out):
+                out.append(d)
+        known = self.device_ids.get(speaker_key)
         for want in (self.links.get(speaker_key), speaker_name):
             n = _sp_norm(want or "")
             if not n:
                 continue
-            hit = next((d for d in devs if _sp_norm(d["name"]) == n), None)
-            if hit:
-                return hit
-        n = _sp_norm(speaker_name)
-        near = [d for d in devs if n and _sp_norm(d["name"])
-                and str(d.get("type") or "").lower() in ("speaker", "avr", "")
-                and (n in _sp_norm(d["name"]) or _sp_norm(d["name"]) in n)]
-        if len(near) == 1:
-            return near[0]
-        if not fresh:
-            return self.device_for(speaker_key, speaker_name, fresh=True)
-        return None
+            same = [d for d in devs if _sp_norm(d["name"]) == n]
+            same.sort(key=lambda d: (d.get("id") != known, not d.get("is_active"), bool(d.get("is_restricted"))))
+            for d in same:
+                add(d)
+        if not out:
+            n = _sp_norm(speaker_name)
+            near = [d for d in devs if n and _sp_norm(d["name"])
+                    and str(d.get("type") or "").lower() in ("speaker", "avr", "")
+                    and (n in _sp_norm(d["name"]) or _sp_norm(d["name"]) in n)]
+            if len(near) == 1:
+                add(near[0])
+        if not out and not fresh:
+            return self.device_candidates(speaker_key, speaker_name, fresh=True)
+        return out
 
-    def play(self, speaker_key: str, speaker_name: str, c: dict) -> dict:
+    def device_for(self, speaker_key: str, speaker_name: str, fresh: bool = False) -> dict | None:
+        c = self.device_candidates(speaker_key, speaker_name, fresh)
+        return c[0] if c else None
+
+    def player(self) -> dict:
+        return self.api("GET", "/me/player")
+
+    def transfer(self, dev: dict, play: bool = True):
+        self.api("PUT", "/me/player", None, {"device_ids": [dev["id"]], "play": play})
+
+    def play(self, speaker_key: str, speaker_name: str, c: dict, device: dict | None = None) -> dict:
         context = str(c.get("context") or "")
         uris = [u for u in (c.get("uris") or []) if isinstance(u, str) and _SP_URI.fullmatch(u)
                 and u.startswith(("spotify:track:", "spotify:episode:"))][:500]
@@ -2499,7 +2542,7 @@ class SpotifyClient:
         else:
             raise SpeakerError("Nothing to play")
 
-        dev = self.device_for(speaker_key, speaker_name)
+        dev = device or self.device_for(speaker_key, speaker_name)
         if dev is None:
             return {"need_device": True, "speaker": speaker_name,
                     "devices": sorted({d["name"] for d in self._devices[0]})}
@@ -2512,7 +2555,9 @@ class SpotifyClient:
                 raise
             # The speaker dozed off from Spotify's point of view: wake it by moving playback
             # to it, then try again with the id Spotify knows it by now.
-            dev = self.device_for(speaker_key, speaker_name, fresh=True) or dev
+            fresh = [d for d in self.device_candidates(speaker_key, speaker_name, fresh=True)
+                     if d.get("id") == dev.get("id") or _sp_norm(d["name"]) == _sp_norm(dev["name"])]
+            dev = fresh[0] if fresh else dev
             try:
                 self.api("PUT", "/me/player", None, {"device_ids": [dev["id"]], "play": False})
             except SpotifyHTTPError:
@@ -2525,7 +2570,25 @@ class SpotifyClient:
                                                        "device_id": dev["id"]})
             except SpeakerError:
                 pass
-        return {"device": dev["name"]}
+        return {"device": dev["name"], "device_id": dev["id"]}
+
+    def diagnostics(self) -> str:
+        if not self.refresh_token:
+            return f"== Spotify: {'set up, not connected' if self.client_id else 'not set up'}"
+        lines = [f"== Spotify: connected user={self.user!r} links={self.links} device_ids={self.device_ids}"]
+        try:
+            for d in self.devices(fresh=True):
+                lines.append(f"[device] {d.get('name')!r} type={d.get('type')} active={d.get('is_active')} "
+                             f"restricted={d.get('is_restricted')} id={str(d.get('id') or '')[:10]}…")
+            p = self.player()
+            dev = p.get("device") if isinstance(p.get("device"), dict) else {}
+            item = p.get("item") if isinstance(p.get("item"), dict) else {}
+            ctx = p.get("context") if isinstance(p.get("context"), dict) else {}
+            lines.append(f"[player] device={dev.get('name')!r} id={str(dev.get('id') or '')[:10]}… "
+                         f"playing={p.get('is_playing')} item={item.get('name')!r} context={ctx.get('uri')!r}")
+        except SpeakerError as e:
+            lines.append(f"[error] {e}")
+        return "\n".join(lines)
 
     def add_to_queue(self, speaker_key: str, speaker_name: str, uri: str) -> dict:
         uri = _sp_check_uri(uri)
@@ -2541,14 +2604,20 @@ class SpotifyClient:
             raise
         return {}
 
-    def up_next(self, speaker_key: str, speaker_name: str) -> dict:
+    def up_next(self, speaker_key: str, speaker_name: str, speaker_title: str = "") -> dict:
         player = self.api("GET", "/me/player")
         dev = player.get("device") if isinstance(player.get("device"), dict) else {}
         names = {_sp_norm(speaker_name), _sp_norm(self.links.get(speaker_key, ""))} - {""}
         if not dev or _sp_norm(dev.get("name")) not in names:
             return {"playing_here": False}
+        item = _sp_track(player.get("item"))
+        if item and speaker_title and not titles_match(speaker_title, item["title"]):
+            # Spotify believes it plays here, but the speaker plays something else: it is busy
+            # with another Spotify session (another phone or account). Don't pretend otherwise.
+            return {"playing_here": False, "mismatch": True, "spotify_title": item["title"],
+                    "speaker_title": speaker_title}
         q = self.api("GET", "/me/player/queue")
-        now = _sp_track(q.get("currently_playing")) or _sp_track(player.get("item"))
+        now = _sp_track(q.get("currently_playing")) or item
         nxt = [t for t in (_sp_track(x) for x in (q.get("queue") or [])[:10]) if t]
         ctx = player.get("context") if isinstance(player.get("context"), dict) else {}
         return {"playing_here": True, "now": now, "next": nxt, "context": ctx.get("uri") or "",
@@ -3323,7 +3392,7 @@ class Controller:
     # -- commands from the UI --------------------------------------------------------
     NEEDS_SPEAKER = {"play_pause", "next", "prev", "seek", "volume", "group_volume", "mute", "input", "preset",
                      "ungroup", "remove", "reconnect", "play_tracks", "queue_add", "queue_jump",
-                     "sp_play", "sp_queue", "sp_link", "sp_upnext"}
+                     "sp_play", "sp_takeover", "sp_queue", "sp_link", "sp_upnext"}
     # questions that change nothing on the speakers: no refresh afterwards
     QUIET = {"sp_browse", "sp_upnext", "sp_devices", "sp_queue", "sp_link", "diagnostics"}
 
@@ -3408,7 +3477,8 @@ class Controller:
         elif a == "diagnostics":
             rest = [x for x in self.speakers if x is not sp]
             return {"text": f"{APP_NAME} {APP_VERSION}\n\n"
-                            + "\n\n".join(diagnostics(s) for s in ([sp] if sp else []) + rest)}
+                            + "\n\n".join(diagnostics(s) for s in ([sp] if sp else []) + rest)
+                            + "\n\n" + self.spotify.diagnostics()}
         elif a == "play_tracks":
             self.play_tracks(sp, list(c.get("ids", [])), int(c.get("index", 0)))
         elif a == "queue_add":
@@ -3473,21 +3543,84 @@ class Controller:
         if a == "sp_link":
             spot.link(lead.key, str(c.get("device") or "")[:200])
             return {}
-        if a == "sp_play":
+        if a in ("sp_play", "sp_takeover"):
             if not lead.reachable:
                 raise SpeakerError(f"{lead.name} is offline")
-            res = spot.play(lead.key, lead.name, c)
-            if not res.get("need_device"):
-                q = self.queues.get(id(lead))
-                if q:
-                    q.active = False                 # Spotify takes over from the music on this PC
-                threading.Timer(2.0, lambda: self.refresh(lead)).start()
-            return res
+            return self._spotify_start(lead, c if a == "sp_play" else None)
         if a == "sp_queue":
             return spot.add_to_queue(lead.key, lead.name, str(c.get("uri") or ""))
         if a == "sp_upnext":
-            return spot.up_next(lead.key, lead.name)
+            return spot.up_next(lead.key, lead.name, lead.title if lead.source_label() == "Spotify Connect" else "")
         raise SpeakerError(f"Unknown action {a}")
+
+    def _refresh_now(self, sp: Speaker):
+        if sp.lock.acquire(timeout=5):
+            try:
+                sp.refresh()
+            except Exception:
+                pass
+            finally:
+                sp.lock.release()
+        self.changed()
+
+    def _spotify_confirm(self, lead: Speaker, before: str, timeout: float) -> tuple[bool, str]:
+        """Does the speaker itself now play what Spotify says it plays?"""
+        spot = self.spotify
+        end = time.time() + timeout
+        sp_title, asked = "", 0.0
+        started = time.time()
+        while time.time() < end:
+            time.sleep(1.0)
+            self._refresh_now(lead)
+            if time.time() - asked >= 2.0:
+                asked = time.time()
+                try:
+                    item = spot.player().get("item")
+                    sp_title = str(item.get("name") or "") if isinstance(item, dict) else sp_title
+                except SpeakerError:
+                    pass
+            on_spotify = lead.source_label() == "Spotify Connect"
+            if on_spotify and sp_title and titles_match(lead.title, sp_title):
+                return True, sp_title
+            if on_spotify and not lead.title and time.time() - started > 4:
+                return True, sp_title                # this speaker doesn't report titles: can't tell
+        return False, sp_title
+
+    def _spotify_start(self, lead: Speaker, c: dict | None) -> dict:
+        """Start Spotify (c) on the speaker, or take over what this account plays (c is None),
+        then check with the speaker itself that it really switched."""
+        spot = self.spotify
+        cands = spot.device_candidates(lead.key, lead.name)
+        if not cands:
+            return {"need_device": True, "speaker": lead.name,
+                    "devices": sorted({d["name"] for d in spot._devices[0]})}
+        before = lead.title
+        q = self.queues.get(id(lead))
+        if q:
+            q.active = False                         # Spotify takes over from the music on this PC
+        res: dict = {}
+        sp_title = ""
+        attempts = cands[:3]
+        for i, dev in enumerate(attempts):
+            if c is not None:
+                res = spot.play(lead.key, lead.name, c, device=dev)
+            else:
+                spot.transfer(dev, play=True)
+                res = {"device": dev["name"], "device_id": dev["id"]}
+            ok, sp_title = self._spotify_confirm(lead, before, 9.0 if i == 0 else 7.0)
+            if ok:
+                spot.remember(lead.key, dev)
+                return res
+        # Still not playing what Spotify says. Ask Spotify once more to hand the music over.
+        try:
+            spot.transfer(attempts[0], play=True)
+            ok, sp_title = self._spotify_confirm(lead, before, 7.0)
+            if ok:
+                spot.remember(lead.key, attempts[0])
+                return res
+        except SpeakerError:
+            pass
+        return {**res, "mismatch": True, "spotify_title": sp_title, "speaker_title": lead.title}
 
 
 _picking = threading.Lock()
