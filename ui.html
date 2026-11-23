@@ -121,6 +121,9 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .folders{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 28px 12px}
 .fchip.add{padding:0 12px;cursor:pointer;transition:.15s}
 .fchip.add:hover{background:var(--hover);color:#fff}
+.fchip.cov i{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
+.fchip.cov.on i{background:var(--accent)}
+.fchip.cov.on{color:var(--text)}
 .fchip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 12px;border-radius:999px;background:var(--raise);color:var(--muted);font-size:13px;max-width:320px}
 .fchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fchip button{width:22px;height:22px;border-radius:50%;display:grid;place-items:center}
@@ -718,6 +721,11 @@ function renderHero() {
   }
 }
 const sortBtn = (key, label) => `<button data-sort="${key}" class="${sort.key === key ? 'on' : ''}">${label}${sort.key === key ? ic(sort.dir > 0 ? 'up' : 'down') : ''}</button>`;
+function coverChip(c) {
+  if (!c) return '';
+  const label = !c.online ? 'Missing covers: off' : c.pending ? `Finding covers… ${c.pending} to go` : 'Missing covers: from MusicBrainz';
+  return `<button class="fchip add cov ${c.online ? 'on' : ''}" data-covers title="Albums without a cover get one from MusicBrainz and the Cover Art Archive. The album and artist names are sent to musicbrainz.org. Click to turn ${c.online ? 'off' : 'on'}."><i></i><span>${label}</span></button>`;
+}
 function renderLibrary() {
   if (!S) return;
   const L = S.library;
@@ -725,7 +733,8 @@ function renderLibrary() {
   document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
   $('qClear').hidden = !query;
   $('folders').innerHTML = albumSel || !L.folders.length ? '' : L.folders.map(f => `<span class="fchip" title="${esc(f)}">${ic('folder')}<span>${esc(f.split(/[\\/]/).filter(Boolean).slice(-2).join(' › '))}</span><button data-rmf="${esc(f)}" title="Stop using this folder">${ic('close')}</button></span>`).join('')
-    + `<button class="fchip add" data-addfolder title="Add another music folder">${ic('plus')}<span>Add folder</span></button><button class="ibtn" data-rescan title="Look for new files in your folders">${ic('refresh')}</button>`;
+    + `<button class="fchip add" data-addfolder title="Add another music folder">${ic('plus')}<span>Add folder</span></button><button class="ibtn" data-rescan title="Look for new files in your folders">${ic('refresh')}</button>`
+    + coverChip(L.covers);
   const body = $('libBody');
   if (!L.folders.length) {
     shown = [];
@@ -835,6 +844,12 @@ $('hero').addEventListener('click', e => { if (e.target.closest('#backBtn')) clo
 $('folders').addEventListener('click', e => {
   if (e.target.closest('[data-addfolder]')) return addFolder();
   if (e.target.closest('[data-rescan]')) { api('rescan_library'); toast('Looking for new files…'); return; }
+  if (e.target.closest('[data-covers]')) {
+    const on = !S.library.covers.online;
+    api('covers_online', {value: on});
+    toast(on ? 'Looking for missing album covers on MusicBrainz' : 'Missing covers won\'t be looked up online');
+    return;
+  }
   const b = e.target.closest('[data-rmf]'); if (b) api('remove_folder', {path: b.dataset.rmf});
 });
 async function addFolder() {
@@ -1000,7 +1015,8 @@ let lastToastTs = 0, libSig = '';
 function render() {
   if (!S) return;
   renderSidebar(); renderNow(); renderBar(); renderDevices();
-  const sig = [S.library.scanning, S.library.folders.join('|'), S.library.count].join('#');
+  const cv = S.library.covers || {};
+  const sig = [S.library.scanning, S.library.folders.join('|'), S.library.count, cv.online, cv.pending].join('#');
   if (S.library.version !== lib.version) { lib.version = S.library.version; libSig = sig; loadLibrary(); }
   else if (libSig !== sig) { libSig = sig; renderLibrary(); }
   else markCurrentRow();

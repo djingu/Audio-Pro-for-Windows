@@ -1,4 +1,4 @@
-AUDIO PRO CONTROL 3.4  -  control your Audio Pro speakers from Windows
+AUDIO PRO CONTROL 3.5  -  control your Audio Pro speakers from Windows
 =====================================================================
 
 INSTALL / UPDATE
@@ -35,6 +35,13 @@ YOUR MUSIC (middle)
     "Play next" and "Add to queue". Click a song under "Next up" to jump to it.
   - Shuffle and Repeat are in the player bar at the bottom.
   - Songs stream from this PC, so keep the app open while they play.
+  - Album covers (new in 3.5): the picture inside the music files is used
+    first, then a picture next to the songs (cover.jpg, folder.jpg,
+    front.jpg...). Albums with neither get their cover from MusicBrainz /
+    the Cover Art Archive (free). Only the album and artist names are sent
+    to musicbrainz.org; found covers are kept in
+    %APPDATA%\AudioProControl\covers. Switch it off with "Missing covers"
+    next to the folders.
 
 ON THE RIGHT
   - What is playing, the speaker's inputs (Wi-Fi, Bluetooth, Line in, RCA...)

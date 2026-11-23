@@ -43,7 +43,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 APP_NAME = "Audio Pro Control"
-APP_VERSION = "3.4"
+APP_VERSION = "3.5"
 
 # Ports to try, in order. Override for testing with APC_PROBE="https:4443,http:80"
 DEFAULT_PROBES = [("https", 4443), ("http", 80), ("https", 443), ("https", 8443)]
@@ -1630,7 +1630,7 @@ CACHE_FORMAT = 3     # bump when the tag reader learns something new, so files a
 
 class Track:
     __slots__ = ("id", "path", "title", "artist", "albumartist", "album", "duration", "pic", "folder",
-                 "mtime", "size", "track", "group")
+                 "mtime", "size", "track", "group", "cover")
 
     def __init__(self, path: str, folder: str, tags: dict, mtime: float, size: int):
         import hashlib
@@ -1644,6 +1644,7 @@ class Track:
         self.duration = float(tags.get("duration") or 0)
         self.track = int(tags.get("track") or 0)
         self.pic = tags.get("pic")
+        self.cover = ""                      # a picture file (in the album folder, or fetched) when no embedded one
         self.mtime, self.size = mtime, size
         # songs in one folder with one album name are one album, whoever the track artists are
         key = (os.path.dirname(path) + "\n" + self.album.lower()).encode("utf-8", "surrogatepass")
@@ -1652,12 +1653,44 @@ class Track:
     def to_ui(self):
         return {"id": self.id, "title": self.title, "artist": self.artist, "aa": self.albumartist,
                 "album": self.album, "g": self.group, "n": self.track, "duration": round(self.duration),
-                "art": bool(self.pic), "added": int(self.mtime)}
+                "art": bool(self.pic or self.cover), "added": int(self.mtime)}
 
     def to_cache(self):
         return {"title": self.title, "artist": self.artist, "albumartist": self.albumartist,
                 "album": self.album, "duration": self.duration, "track": self.track,
                 "pic": list(self.pic) if self.pic else None, "mtime": self.mtime, "size": self.size}
+
+
+IMAGE_TYPES = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
+COVER_NAMES = ("cover", "folder", "front", "album", "albumart")      # best first
+
+
+def folder_cover(filenames) -> str | None:
+    """The album picture kept next to the songs (cover.jpg, folder.jpg, Windows Media Player's...)."""
+    best = None
+    for name in filenames:
+        stem, ext = os.path.splitext(name)
+        stem = stem.lower()
+        if ext.lower() not in IMAGE_TYPES or name.startswith("._"):
+            continue
+        if stem in COVER_NAMES:
+            rank = COVER_NAMES.index(stem)
+        elif stem.startswith("albumart_") and stem.endswith("_large"):
+            rank = len(COVER_NAMES)
+        elif stem == "albumartsmall" or (stem.startswith("albumart_") and stem.endswith("_small")):
+            rank = len(COVER_NAMES) + 1
+        else:
+            continue
+        if best is None or rank < best[0]:
+            best = (rank, name)
+    return best[1] if best else None
+
+
+def _album_norm(text: str) -> str:
+    import unicodedata
+    t = unicodedata.normalize("NFKC", str(text or "")).casefold().replace("&", " and ")
+    t = re.sub(r"^the\s+", "", t.strip())
+    return re.sub(r"[\W_]+", "", t)
 
 
 class Library:
@@ -1672,6 +1705,8 @@ class Library:
         self.scanning = False
         self.again = False
         self.lock = threading.Lock()
+        self.cover_for = lambda key: None     # set by the cover finder: album key -> saved picture
+        self.album_keys: dict[str, str] = {}  # track group -> album key
         data = read_json(self.settings_path, {})
         if isinstance(data, dict):
             self.folders = [p for p in data.get("folders", []) if isinstance(p, str)]
@@ -1721,6 +1756,8 @@ class Library:
                     continue
                 seen_dirs.add(real)
                 dirnames.sort(key=str.lower)
+                fc = folder_cover(filenames)
+                fc = os.path.join(dirpath, fc) if fc else ""
                 for name in sorted(filenames, key=str.lower):
                     if os.path.splitext(name)[1].lower() not in AUDIO_TYPES or name.startswith("._"):
                         continue
@@ -1737,20 +1774,96 @@ class Library:
                     else:
                         tags = read_tags(p)
                     t = Track(p, folder, tags, st.st_mtime, st.st_size)
+                    if not t.pic:
+                        t.cover = fc
                     tracks[t.id] = t
                     new_cache[p] = t.to_cache()
                     if on_progress and len(tracks) % 200 == 0:
                         on_progress(len(tracks))
         order = sorted(tracks, key=lambda k: ((tracks[k].albumartist or tracks[k].artist).lower(),
                                               tracks[k].album.lower(), tracks[k].track, tracks[k].path.lower()))
+        self.album_keys = self._album_keys(tracks)
+        sibling: dict[str, str] = {}          # a song with a picture, per album
+        for t in tracks.values():
+            if (t.pic or t.cover) and t.group not in sibling:
+                sibling[t.group] = t.id
+        for t in tracks.values():
+            if not t.pic and not t.cover:
+                t.cover = ("track:" + sibling[t.group]) if t.group in sibling else \
+                    (self.cover_for(self.album_keys.get(t.group, "")) or "")
         self.tracks, self.order = tracks, order
         self.version += 1
         write_json(self.cache_path, {"format": CACHE_FORMAT, "files": new_cache})
 
+    @staticmethod
+    def album_identity(group_tracks: list) -> tuple[str, str]:
+        """(album, artist) to look an album up by. Mixed artists without an album artist: a compilation."""
+        album = next((t.album for t in group_tracks if t.album), "")
+        aa = next((t.albumartist for t in group_tracks if t.albumartist), "")
+        if aa:
+            return album, aa
+        counts: dict[str, int] = {}
+        for t in group_tracks:
+            if t.artist:
+                counts[t.artist] = counts.get(t.artist, 0) + 1
+        if len(counts) > 2:
+            return album, "Various Artists"
+        return album, max(counts, key=counts.get) if counts else ""
+
+    def _album_keys(self, tracks: dict) -> dict[str, str]:
+        import hashlib
+        groups: dict[str, list] = {}
+        for t in tracks.values():
+            groups.setdefault(t.group, []).append(t)
+        out = {}
+        for g, ts in groups.items():
+            album, artist = self.album_identity(ts)
+            raw = (_album_norm(artist) + "\n" + _album_norm(album)).encode("utf-8", "surrogatepass")
+            out[g] = hashlib.sha1(raw).hexdigest()[:16]
+        return out
+
+    def albums_without_art(self) -> list[tuple[str, str, str]]:
+        """(album key, album, artist) for albums with no picture of any kind."""
+        groups: dict[str, list] = {}
+        for t in list(self.tracks.values()):
+            groups.setdefault(t.group, []).append(t)
+        out, seen = [], set()
+        for g, ts in groups.items():
+            if any(t.pic or t.cover for t in ts):
+                continue
+            album, artist = self.album_identity(ts)
+            key = self.album_keys.get(g)
+            if not key or key in seen or not album or not artist:
+                continue                     # without an album and artist name, a guess would be wrong
+            seen.add(key)
+            out.append((key, album, artist))
+        return out
+
+    def set_cover(self, key: str, path: str) -> int:
+        n = 0
+        for t in list(self.tracks.values()):
+            if not t.pic and not t.cover and self.album_keys.get(t.group) == key:
+                t.cover = path
+                n += 1
+        if n:
+            self.version += 1
+        return n
+
     def art_bytes(self, tid: str):
         t = self.tracks.get(tid)
-        if not t or not t.pic:
+        if not t:
             return None
+        if not t.pic:
+            if not t.cover:
+                return None
+            if t.cover.startswith("track:"):             # same album, another song's picture
+                other = self.tracks.get(t.cover[6:])
+                return self.art_bytes(other.id) if other and other is not t and not other.cover.startswith("track:") else None
+            try:
+                with open(t.cover, "rb") as f:
+                    return IMAGE_TYPES.get(os.path.splitext(t.cover)[1].lower(), "image/jpeg"), f.read(16 * 1024 * 1024)
+            except OSError:
+                return None
         mime, off, ln = t.pic
         try:
             with open(t.path, "rb") as f:
@@ -1758,6 +1871,212 @@ class Library:
                 return mime, f.read(ln)
         except OSError:
             return None
+
+
+# --------------------------------------------------------------------------------------
+# Missing album covers from MusicBrainz + the Cover Art Archive (free, no account)
+# --------------------------------------------------------------------------------------
+
+MB_API = os.environ.get("APC_MB_API", "https://musicbrainz.org/ws/2")
+CAA_API = os.environ.get("APC_CAA_API", "https://coverartarchive.org")
+COVER_RETRY_DAYS = 30
+
+
+class _Offline(Exception):
+    pass
+
+
+def internet_opener():
+    # The internet, not the speakers: normal proxy settings and real certificate checks
+    # (never the LAN opener, which skips them for the speakers' own certificates).
+    return urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.create_default_context()))
+
+
+class CoverFinder:
+    """Looks up covers for albums that have none, one at a time and at most one MusicBrainz
+    request a second (their rule), and keeps what it finds on this PC so each album is asked once."""
+
+    def __init__(self, cfg_dir: str, library: "Library", on_found):
+        self.dir = os.path.join(cfg_dir, "covers")
+        self.index_path = os.path.join(cfg_dir, "covers.json")
+        self.library = library
+        self.on_found = on_found
+        self.enabled = True
+        idx = read_json(self.index_path, {})
+        self.index: dict = idx if isinstance(idx, dict) else {}
+        self.queue: list[tuple[str, str, str]] = []
+        self.cv = threading.Condition()
+        self.found = 0
+        self.busy = False
+        self.opener = internet_opener()
+        self.agent = f"AudioProControl/{APP_VERSION} ( https://github.com/djingu/Audio-Pro-for-Windows )"
+        self._last_mb = 0.0
+        self._offline_until = 0.0
+        library.cover_for = self.file_for
+        threading.Thread(target=self._run, daemon=True, name="covers").start()
+
+    @property
+    def pending(self) -> int:
+        return len(self.queue) + (1 if self.busy else 0)
+
+    def file_for(self, key: str) -> str | None:
+        e = self.index.get(key) if key else None
+        if isinstance(e, dict) and e.get("file"):
+            p = os.path.join(self.dir, os.path.basename(str(e["file"])))
+            if os.path.isfile(p):
+                return p
+        return None
+
+    def update(self):
+        """Look for covers for whatever in the library still has none."""
+        now = time.time()
+        todo = []
+        for key, album, artist in self.library.albums_without_art():
+            e = self.index.get(key)
+            if self.file_for(key):
+                continue
+            if isinstance(e, dict) and e.get("miss") and now - float(e["miss"]) < COVER_RETRY_DAYS * 86400:
+                continue
+            todo.append((key, album, artist))
+        with self.cv:
+            self.queue = todo if self.enabled else []
+            self._offline_until = 0.0
+            self.cv.notify()
+
+    def set_enabled(self, on: bool):
+        self.enabled = on
+        if on:
+            self.update()
+        else:
+            with self.cv:
+                self.queue = []
+
+    # -- the worker --------------------------------------------------------------------
+    def _run(self):
+        while True:
+            with self.cv:
+                while not self.queue or time.time() < self._offline_until:
+                    self.cv.wait(timeout=60 if self.queue else None)
+                key, album, artist = self.queue.pop(0)
+                self.busy = True
+            try:
+                got = self._lookup(album, artist)
+            except _Offline:
+                with self.cv:                # no internet right now: try again later, forget nothing
+                    self.queue.insert(0, (key, album, artist))
+                    self._offline_until = time.time() + 600
+                    self.busy = False
+                self.on_found(0)
+                continue
+            except Exception:
+                got = None
+            if got:
+                data, mbid = got
+                ext = ".png" if data[:8] == b"\x89PNG\r\n\x1a\n" else ".jpg"
+                try:
+                    os.makedirs(self.dir, exist_ok=True)
+                    tmp = os.path.join(self.dir, key + ext + ".tmp")
+                    with open(tmp, "wb") as f:
+                        f.write(data)
+                    os.replace(tmp, os.path.join(self.dir, key + ext))
+                    self.index[key] = {"file": key + ext, "mbid": mbid, "album": album, "artist": artist,
+                                       "at": int(time.time())}
+                    self.found += self.library.set_cover(key, os.path.join(self.dir, key + ext)) and 1
+                except OSError:
+                    pass
+            else:
+                self.index[key] = {"miss": int(time.time()), "album": album, "artist": artist}
+            write_json(self.index_path, self.index, indent=1)
+            self.busy = False
+            self.on_found(1 if got else 0)
+
+    def _get(self, url: str, accept: str, limit: int) -> bytes | None:
+        """None for 404; _Offline when the internet can't be reached."""
+        req = urllib.request.Request(url, headers={"User-Agent": self.agent, "Accept": accept})
+        for attempt in range(3):
+            try:
+                with self.opener.open(req, timeout=20) as r:
+                    return r.read(limit)
+            except urllib.error.HTTPError as e:
+                if e.code in (404, 400):
+                    return None
+                if e.code in (429, 500, 502, 503, 504) and attempt < 2:
+                    time.sleep(3 + attempt * 4)       # busy or rate limited: wait and ask again
+                    continue
+                return None
+            except (OSError, http.client.HTTPException) as e:
+                raise _Offline() from e
+        return None
+
+    def _mb(self, path: str, params: dict) -> dict:
+        wait = self._last_mb + 1.1 - time.time()          # MusicBrainz: at most one request a second
+        if wait > 0:
+            time.sleep(wait)
+        try:
+            raw = self._get(f"{MB_API}{path}?{urllib.parse.urlencode(params)}", "application/json", 2_000_000)
+        finally:
+            self._last_mb = time.time()
+        try:
+            d = json.loads(raw or b"{}")
+            return d if isinstance(d, dict) else {}
+        except ValueError:
+            return {}
+
+    @staticmethod
+    def _quote(text: str) -> str:
+        return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+    @staticmethod
+    def _title_ok(found: str, wanted: str) -> bool:
+        a, b = _album_norm(found), _album_norm(wanted)
+        if not a or not b:
+            return False
+        if a == b:
+            return True
+        short, long_ = sorted((a, b), key=len)
+        return len(short) >= 5 and long_.startswith(short) and len(short) >= 0.6 * len(long_)
+
+    @staticmethod
+    def _artist_ok(rg: dict, wanted: str) -> bool:
+        w = _album_norm(wanted)
+        names = []
+        for c in rg.get("artist-credit") or []:
+            if isinstance(c, dict):
+                names.append(c.get("name") or "")
+                if isinstance(c.get("artist"), dict):
+                    names.append(c["artist"].get("name") or "")
+        joined = _album_norm(" ".join(names))
+        if w == _album_norm("Various Artists"):
+            return "variousartists" in joined or not joined
+        return bool(w) and any(w == _album_norm(n) or (len(w) >= 4 and w in _album_norm(n))
+                               or (len(_album_norm(n)) >= 4 and _album_norm(n) in w) for n in names) or w in joined
+
+    def _lookup(self, album: str, artist: str):
+        titles = [album]
+        plain = re.sub(r"\s*[\(\[][^)\]]*\b(deluxe|edition|remaster(ed)?|expanded|anniversary|bonus|version|"
+                       r"disc|cd|explicit|special)\b[^)\]]*[\)\]]", "", album, flags=re.I).strip()
+        plain = re.sub(r"\s*[-–]\s*(disc|cd)\s*\d+$", "", plain, flags=re.I).strip()
+        if plain and plain != album:
+            titles.append(plain)
+        tried = set()
+        for title in titles:
+            q = f"releasegroup:{self._quote(title)}"
+            if _album_norm(artist) != _album_norm("Various Artists"):
+                q += f" AND artist:{self._quote(artist)}"
+            data = self._mb("/release-group/", {"query": q, "fmt": "json", "limit": 8})
+            for rg in data.get("release-groups") or []:
+                if not isinstance(rg, dict) or not rg.get("id") or rg["id"] in tried:
+                    continue
+                if int(rg.get("score") or 0) < 80 or not self._title_ok(rg.get("title") or "", title) \
+                        or not self._artist_ok(rg, artist):
+                    continue
+                tried.add(rg["id"])
+                img = self._get(f"{CAA_API}/release-group/{rg['id']}/front-500", "image/*", 8_000_000)
+                if img and (img[:3] == b"\xff\xd8\xff" or img[:8] == b"\x89PNG\r\n\x1a\n"):
+                    return img, rg["id"]
+                if len(tried) >= 3:
+                    return None
+        return None
 
 
 # --------------------------------------------------------------------------------------
@@ -1910,6 +2229,7 @@ class Controller:
         self.settings_path = os.path.join(self.cfg_dir, "settings.json")
         self.speakers: list[Speaker] = []
         self.library = Library(self.cfg_dir)
+        self.covers = CoverFinder(self.cfg_dir, self.library, lambda found: self.changed())
         # 3.1-3.3 had a Spotify sign-in; it was removed in 3.4, so don't leave its tokens behind
         try:
             os.remove(os.path.join(self.cfg_dir, "spotify.json"))
@@ -1938,6 +2258,8 @@ class Controller:
         settings = read_json(self.settings_path, {})
         settings = settings if isinstance(settings, dict) else {}
         self.repeat = bool(settings.get("repeat"))
+        self.covers_online = settings.get("covers_online", True) is not False
+        self.covers.enabled = self.covers_online
         self.ignored: set[str] = {str(x) for x in settings.get("ignored", []) if x}
         self._load()
 
@@ -1960,7 +2282,8 @@ class Controller:
         write_json(self.cfg_path, snap, indent=2)
 
     def _save_settings(self):
-        write_json(self.settings_path, {"repeat": self.repeat, "ignored": sorted(self.ignored)}, indent=2)
+        write_json(self.settings_path, {"repeat": self.repeat, "ignored": sorted(self.ignored),
+                                        "covers_online": self.covers_online}, indent=2)
 
     def find(self, key: str) -> Speaker | None:
         if not key:
@@ -2399,6 +2722,7 @@ class Controller:
             self.changed()
             self.library.scan(on_progress=lambda n: self.changed())
             self.changed()
+            self.covers.update()
         self.pool.submit(work)
         threading.Timer(0.15, self.changed).start()
 
@@ -2406,7 +2730,7 @@ class Controller:
         ip = _route_ip_for(sp.host)
         ext = os.path.splitext(t.path)[1].lower()
         url = f"http://{ip}:{self.media_port}/m/{t.id}/track{ext}"   # plain name: some speakers choke on odd ones
-        art = f"http://{ip}:{self.media_port}/art/{t.id}.jpg" if t.pic else ""
+        art = f"http://{ip}:{self.media_port}/art/{t.id}.jpg" if (t.pic or t.cover) else ""
         return url, art
 
     def _didl(self, t: Track, url: str, art: str) -> str:
@@ -2649,7 +2973,7 @@ class Controller:
                 "title": t.title if local else sp.title,
                 "artist": t.artist if local else sp.artist,
                 "album": t.album if local else sp.album,
-                "art": (f"/art/{t.id}" if t.pic else "") if local else self._art_url(sp),
+                "art": (f"/art/{t.id}" if (t.pic or t.cover) else "") if local else self._art_url(sp),
                 "source": ("This PC" if local else sp.source_label()) if playing else "",
                 "local": bool(local),
                 "input": sp.active_input(),
@@ -2668,7 +2992,9 @@ class Controller:
                 "toast": msg, "toast_ts": ts, "repeat": self.repeat,
                 "sleep_at": int(self.sleep_at * 1000) if self.sleep_at else 0,
                 "library": {"version": self.library.version, "scanning": self.library.scanning,
-                            "count": len(self.library.tracks), "folders": self.library.folders},
+                            "count": len(self.library.tracks), "folders": self.library.folders,
+                            "covers": {"online": self.covers.enabled, "pending": self.covers.pending,
+                                       "found": self.covers.found}},
                 "version": APP_VERSION}
 
     # -- commands from the UI --------------------------------------------------------
@@ -2764,6 +3090,10 @@ class Controller:
         elif a == "repeat":
             self.repeat = bool(c.get("value"))
             self._save_settings()
+        elif a == "covers_online":
+            self.covers_online = bool(c.get("value"))
+            self._save_settings()
+            self.covers.set_enabled(self.covers_online)
         elif a == "sleep":
             minutes = max(0, min(600, int(c.get("minutes", 0))))
             self.sleep_at = time.time() + minutes * 60 if minutes else 0.0

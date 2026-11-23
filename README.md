@@ -17,7 +17,8 @@ Works with both Audio Pro speaker generations, and you can mix them in one group
 - **Finds your speakers automatically** and remembers them, even when their IP address changes. You can also add one by IP address.
 - **Now playing** for anything on the speaker, including Spotify Connect, AirPlay, Bluetooth, internet radio and Line in, with play / pause, next / previous, seek and volume.
 - **Multiroom groups:** tick which speakers play together, set each one's volume, or press *Play everywhere*. Older speakers that group over Wi-Fi Direct are handled too.
-- **Your music:** add folders with MP3, FLAC, M4A/AAC or WAV files. Covers and tags are read from the files. Browse by song or album, search, and use a play queue with shuffle and repeat. The PC streams the music to the speaker.
+- **Your music:** add folders with MP3, FLAC, M4A/AAC or WAV files. Tags are read from the files. Browse by song or album, search, and use a play queue with shuffle and repeat. The PC streams the music to the speaker.
+- **Album covers:** taken from the music files, or from a picture next to them (`cover.jpg`, `folder.jpg`, `front.jpg`…). Albums with neither get their cover from [MusicBrainz](https://musicbrainz.org) and the [Cover Art Archive](https://coverartarchive.org), free and without an account.
 - **Spotify, AirPlay and more:** start music from your phone as usual (Spotify Connect, AirPlay, Bluetooth), then control it and group speakers from here.
 - **Inputs and presets:** switch between Wi-Fi, Bluetooth, Line in and RCA, and start the presets saved on the speaker.
 - Sleep timer, keyboard shortcuts, and its own taskbar icon that you can pin.
@@ -26,7 +27,7 @@ Works with both Audio Pro speaker generations, and you can mix them in one group
 
 ## Install
 
-1. Download **AudioProControl-3.4.zip** (or the newest version) from the [latest release](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest) and unzip it anywhere. (Or click the green **Code** button on this page → **Download ZIP**; it contains the same files.)
+1. Download **AudioProControl-3.5.zip** (or the newest version) from the [latest release](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest) and unzip it anywhere. (Or click the green **Code** button on this page → **Download ZIP**; it contains the same files.)
 2. Double-click **Install.bat**. It also updates an older version.
    - If Windows asks whether to run it, choose **Run** (or **More info → Run anyway**).
    - If Python 3 isn't installed, the installer fetches it with `winget` (one time, about 30 MB).
@@ -65,6 +66,7 @@ The app is one Python file (`AudioProControl.pyw`) and its interface (`ui.html`)
 
 - **Speakers:** the app talks to the speakers' local LinkPlay HTTP API and to UPnP. First-generation speakers use HTTP; MkII speakers use HTTPS on port 4443 with a client certificate.
 - **Your music:** files are streamed from a small built-in media server.
+- **Missing covers:** looked up on MusicBrainz one album at a time (at most one request a second, as MusicBrainz asks), and the front cover is downloaded from the Cover Art Archive. Only album and artist names are sent. Found covers are kept in `%APPDATA%\AudioProControl\covers`, so each album is asked about once. Albums without a match are tried again after 30 days. Switch it off with **Missing covers** next to your music folders.
 
 Settings are stored in `%APPDATA%\AudioProControl`.
 
@@ -74,6 +76,7 @@ Settings are stored in `%APPDATA%\AudioProControl`.
 
 - The speaker protocol details and the LinkPlay client certificate come from [pywiim](https://github.com/mjcumming/pywiim) by Michael Cumming (MIT). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - Icons: [Material Icons](https://fonts.google.com/icons) (Apache 2.0).
+- Missing album covers: [MusicBrainz](https://musicbrainz.org) and the [Cover Art Archive](https://coverartarchive.org).
 
 This is an independent project. It is not made by or affiliated with Audio Pro or LinkPlay. *Audio Pro* is a trademark of its owner.
 
