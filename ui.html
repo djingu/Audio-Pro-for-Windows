@@ -97,14 +97,7 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .hero h1{font-size:clamp(34px,5.4vw,80px);line-height:1.02;margin:8px 0 14px;font-weight:900;letter-spacing:-.04em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .hero h1.long{font-size:clamp(26px,3.2vw,44px);letter-spacing:-.02em}
 .hero .meta{color:rgba(255,255,255,.75);font-size:14px}
-.hero .back{background:rgba(0,0,0,.45);color:#fff}
-.htop{position:absolute;top:14px;left:18px;right:18px;display:flex;align-items:center;gap:10px}
-.mtabs{display:flex;gap:6px}
-.mtabs button{height:32px;padding:0 14px;border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font-size:13px;font-weight:600;transition:.15s}
-.mtabs button:hover{background:rgba(0,0,0,.6)}
-.mtabs button.on{background:#fff;color:#000}
-.hero-art.round,.card-a .cover.round{border-radius:50%}
-.hero-art.liked,.card-a .cover.liked{background:linear-gradient(135deg,#450af5,#8e8ee5 60%,#c4efd9);color:#fff}
+.hero .back{position:absolute;top:14px;left:18px;background:rgba(0,0,0,.45);color:#fff}
 .hero .back:hover{background:rgba(0,0,0,.7)}
 .toolbar{display:flex;align-items:center;gap:14px;min-width:0;padding:20px 28px 12px;background:linear-gradient(180deg,rgba(var(--hero),.3),transparent 160px)}
 .bigplay{width:56px;height:56px;min-width:56px;aspect-ratio:1;border-radius:50%;background:var(--accent);color:#000;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .1s,background .15s}
@@ -167,31 +160,6 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .card-a .ap:hover{background:var(--accent-hi);transform:scale(1.05)}
 .card-a .at{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-a .aa{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
-[hidden]{display:none!important}
-.sec{display:flex;align-items:baseline;gap:12px;padding:22px 28px 6px}
-.sec h2{font-size:22px;margin:0;letter-spacing:-.01em}
-.sec small{color:var(--muted);font-size:13px}
-.row.dis{opacity:.45}
-.playon{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.playon b{color:#fff;font-weight:600}
-.note{margin:8px 28px 24px;padding:16px 18px;border-radius:10px;background:var(--panel2);color:var(--muted);line-height:1.5;font-size:14px}
-.note b{color:#fff}
-.setup{max-width:660px;margin:4px 28px 40px}
-.step{display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;padding:18px 20px;border-radius:12px;background:var(--panel2);margin-bottom:10px}
-.step>b{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:grid;place-items:center;font-size:15px}
-.step h4{margin:5px 0 6px;font-size:16px}
-.step p{margin:0 0 12px;color:var(--muted);line-height:1.5;font-size:14px}
-.step p b{color:#fff;font-weight:600}
-.copyline{display:flex;gap:8px;align-items:center;background:#000;border-radius:8px;padding:6px 6px 6px 14px}
-.copyline code{flex:1;font:13px Consolas,ui-monospace,monospace;user-select:all;overflow-wrap:anywhere;color:#fff}
-.idrow{display:flex;gap:8px}.idrow .field{flex:1;min-width:0;font-family:Consolas,ui-monospace,monospace}
-.fine{color:var(--dim);font-size:12px;line-height:1.6;margin:14px 4px 0}
-.spfoot{color:var(--dim);font-size:12px;text-align:center;padding:12px 0 28px}
-.spfoot .link,.empty .link{color:inherit}
-.up.static{cursor:default}
-.up.static:hover{background:none}
-.modal code{font:12px Consolas,ui-monospace,monospace;background:#3e3e3e;padding:1px 5px;border-radius:4px;color:#fff}
-.menu button:disabled{opacity:.4}
 .empty{margin:40px auto;max-width:420px;text-align:center;padding:40px 28px;border-radius:14px;background:var(--panel2)}
 .empty .big{font-size:56px;color:var(--accent)}
 .empty h2{margin:10px 0 6px;font-size:22px}
@@ -208,10 +176,6 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .card{background:var(--raise);border-radius:8px;padding:14px 16px;margin-top:16px}
 .card h3{font-size:15px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between}
 .card h3 small{font-weight:400;color:var(--muted);font-size:12px}
-.card.warn{border:1px solid rgba(245,155,35,.45)}
-.card.warn h3{color:#f59b23;justify-content:flex-start;gap:8px}
-.card.warn p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.5}
-.card.warn p b{color:#fff;font-weight:600}
 .sources{display:flex;flex-wrap:wrap;gap:8px}
 .src{height:32px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.08);font-size:13px;transition:.15s;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .src:hover{background:rgba(255,255,255,.16)}
@@ -333,7 +297,6 @@ kbd{font:inherit;font-size:12px;background:#3e3e3e;border-radius:4px;padding:2px
   <main class="panel main">
     <div class="scroll" id="mainScroll">
       <div class="hero" id="hero"></div>
-      <div id="libPane">
       <div class="toolbar">
         <button class="bigplay" id="playAll" title="Play"></button>
         <button class="toggle" id="shuffleBtn" title="Shuffle"></button>
@@ -342,16 +305,6 @@ kbd{font:inherit;font-size:12px;background:#3e3e3e;border-radius:4px;padding:2px
       </div>
       <div class="folders" id="folders"></div>
       <div id="libBody"></div>
-      </div>
-      <div id="spPane" hidden>
-        <div class="toolbar" id="spBar">
-          <button class="bigplay" id="spPlay" title="Play on the selected speaker"></button>
-          <button class="toggle" id="spShuffleBtn" title="Shuffle when Spotify starts"></button>
-          <div class="playon" id="spOn"></div>
-          <label class="search"><span id="spqIcon"></span><input id="spq" placeholder="Search Spotify" autocomplete="off" spellcheck="false"><button id="spqClear" title="Clear" hidden></button></label>
-        </div>
-        <div id="spBody"></div>
-      </div>
     </div>
   </main>
 
@@ -406,8 +359,6 @@ const P = {
   moon:'M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z',
   up:'M7 14l5-5 5 5z', down:'M7 10l5 5 5-5z',
   queue:'M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18a3 3 0 1 0 3 3V8h3V6h-5z',
-  heart:'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
-  open:'M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm5 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7z',
 };
 const ic = n => `<svg viewBox="0 0 24 24"><path d="${P[n]}"/></svg>`;
 const $ = id => document.getElementById(id);
@@ -441,23 +392,22 @@ $('searchIcon').innerHTML = ic('search'); $('qClear').innerHTML = ic('close');
 $('prevBtn').innerHTML = ic('prev'); $('nextBtn').innerHTML = ic('next');
 
 // ---------- api ----------
-async function api(action, params={}, quiet=false) {
+async function api(action, params={}) {
   try {
     const r = await fetch('/api/cmd', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action, ...params})});
     const j = await r.json();
-    if (!j.ok && !quiet) toast(j.error || 'Something went wrong');
+    if (!j.ok) toast(j.error || 'Something went wrong');
     return j;
-  } catch (e) { if (!quiet) toast('The app is not responding'); return {ok:false, error:'The app is not responding'}; }
+  } catch (e) { toast('The app is not responding'); return {ok:false}; }
 }
 
 let toastTimer;
-function toast(msg, sticky) {
+function toast(msg) {
   document.querySelectorAll('.toast').forEach(t => t.remove());
-  clearTimeout(toastTimer);
   if (!msg) return;
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t);
-  if (!sticky) toastTimer = setTimeout(() => t.remove(), Math.min(9000, 2500 + msg.length * 45));
+  document.body.appendChild(t); clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.remove(), Math.min(9000, 2500 + msg.length * 45));
 }
 
 // ---------- model helpers ----------
@@ -757,19 +707,19 @@ function renderHero() {
   const L = S.library, a = albumSel && lib.albumById[albumSel];
   if (a) {
     tintHero(a.artId);
-    $('hero').innerHTML = heroTop(true) + `
+    $('hero').innerHTML = `<button class="ibtn back" id="backBtn" title="Back to all albums (Esc)">${ic('back')}</button>
       <div class="hero-art" ${a.artId ? `style="background-image:url('/art/${a.artId}')"` : ''}>${a.artId ? '' : ic('album')}</div>
       <div style="min-width:0"><small>Album</small><h1 class="${a.title.length > 22 ? 'long' : ''}">${esc(a.title)}</h1>
       <div class="meta"><b>${esc(a.artist)}</b> · ${plural(a.tracks.length, 'song')}${a.duration ? ', ' + fmt(a.duration) : ''}</div></div>`;
   } else {
     tintHero(null);
-    $('hero').innerHTML = heroTop(false) + `<div class="hero-art">${ic('note')}</div><div style="min-width:0"><small>Your music</small><h1>Library</h1>
+    $('hero').innerHTML = `<div class="hero-art">${ic('note')}</div><div style="min-width:0"><small>Your music</small><h1>Library</h1>
       <div class="meta">${L.count ? `${plural(L.count, 'song')} · ${plural(lib.albums.length, 'album')}` : 'Play music from this PC on your speakers'}</div></div>`;
   }
 }
 const sortBtn = (key, label) => `<button data-sort="${key}" class="${sort.key === key ? 'on' : ''}">${label}${sort.key === key ? ic(sort.dir > 0 ? 'up' : 'down') : ''}</button>`;
 function renderLibrary() {
-  if (!S || mode !== 'lib') return;
+  if (!S) return;
   const L = S.library;
   renderHero();
   document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
@@ -844,7 +794,7 @@ function openAlbum(id) { if (!lib.albumById[id]) return; albumSel = id; sort = {
 function closeAlbum() { albumSel = null; renderLibrary(); }
 function setQuery(v) { query = v; $('q').value = v; }
 function setView(v) { view = v; lsSet('view', v); albumSel = null; renderLibrary(); }
-function selectRow(r) { document.querySelectorAll('.row.sel').forEach(x => x.classList.remove('sel')); if (r) r.classList.add('sel'); }
+function selectRow(r) { document.querySelectorAll('#libBody .row.sel').forEach(x => x.classList.remove('sel')); if (r) r.classList.add('sel'); }
 function songMenu(list, place, single) {
   const many = list.length > 1;
   const m = popup(`<div class="label">${many ? plural(list.length, 'song') : esc(list[0].title)}</div>
@@ -881,10 +831,7 @@ $('libBody').addEventListener('contextmenu', e => {
   if (r) { selectRow(r); const tr = shown[+r.dataset.i]; if (tr) songMenu([tr], atMouse(e), true); }
   else { const a = lib.albumById[c.dataset.album]; if (a) songMenu(a.tracks, atMouse(e), false); }
 });
-$('hero').addEventListener('click', e => {
-  const m = e.target.closest('[data-mode]'); if (m) { if (m.dataset.mode !== mode) setMode(m.dataset.mode); return; }
-  if (e.target.closest('#backBtn')) mode === 'sp' ? spBack() : closeAlbum();
-});
+$('hero').addEventListener('click', e => { if (e.target.closest('#backBtn')) closeAlbum(); });
 $('folders').addEventListener('click', e => {
   if (e.target.closest('[data-addfolder]')) return addFolder();
   if (e.target.closest('[data-rescan]')) { api('rescan_library'); toast('Looking for new files…'); return; }
@@ -924,10 +871,7 @@ function renderNow(force) {
   }
   const presets = t.presets && t.presets.length ? `<div class="card"><h3>Presets <small>saved on the speaker</small></h3><div class="sources">${t.presets.map(p =>
       `<button class="src" data-preset="${p.n}" title="${esc(p.name)}"><b>${p.n}</b>${esc(p.name)}</button>`).join('')}</div></div>` : '';
-  const warn = t.source === 'Spotify Connect' ? spMismatchHtml(t) : '';
-  if (!up && t.source === 'Spotify Connect' && !warn) up = spUpNextHtml(t);
-  const art = spArtFor(t);
-  const sig = JSON.stringify([t.id, groupName(t), art, t.title, t.artist, t.album, t.source, t.input, t.inputs, t.presets, up, warn, t.status, t.state, t.error, t.model, t.generation]);
+  const sig = JSON.stringify([t.id, groupName(t), t.art, t.title, t.artist, t.album, t.source, t.input, t.inputs, t.presets, up, t.status, t.state, t.error, t.model, t.generation]);
   if (!force && el.dataset.sig === sig) return;
   el.dataset.sig = sig;
   const idle = t.status === 'offline' ? 'Offline' : t.status === 'connecting' ? 'Connecting…' : t.state === 'play' ? (t.source || 'Playing') : 'Nothing playing';
@@ -935,11 +879,10 @@ function renderNow(force) {
     : t.status === 'connecting' ? '' : t.state === 'play' ? '' : 'Pick a song from your library, or play from your phone.';
   el.innerHTML = `<div class="scroll">
     <div class="now-head">${ic(mem.length ? 'group' : 'speaker')}<span>${esc(groupName(t))}</span></div>
-    <div class="art" style="${art ? 'background-image:' + cssUrl(art) : ''}">${art ? '' : ic('note')}</div>
+    <div class="art" style="${t.art ? 'background-image:' + cssUrl(t.art) : ''}">${t.art ? '' : ic('note')}</div>
     <h2>${esc(t.title || idle)}</h2>
     <div class="by">${esc(t.artist || (t.title ? t.album : hint))}</div>
     ${t.source && t.title ? `<div style="margin:12px 4px 0"><span class="chip" style="font-size:12px">${esc(t.source)}</span></div>` : ''}
-    ${warn}
     ${presets}
     <div class="card"><h3>Input</h3><div class="sources">${t.inputs.map(s => `<button class="src ${s.key === t.input ? 'on' : ''}" data-src="${esc(s.key)}">${esc(s.label)}</button>`).join('')}</div></div>
     ${up}
@@ -950,8 +893,7 @@ $('now').addEventListener('click', e => {
   const t = target(); if (!t) return;
   const b = e.target.closest('[data-src]'); if (b) { api('input', {id: t.id, value: b.dataset.src}); return; }
   const p = e.target.closest('[data-preset]'); if (p) { api('preset', {id: t.id, value: +p.dataset.preset}); return; }
-  const j = e.target.closest('[data-jump]'); if (j) { api('queue_jump', {id: t.id, index: +j.dataset.jump}); return; }
-  if (e.target.closest('[data-takeover]')) spTakeOver(t);
+  const j = e.target.closest('[data-jump]'); if (j) api('queue_jump', {id: t.id, index: +j.dataset.jump});
 });
 
 // ---------- player bar ----------
@@ -960,11 +902,10 @@ function renderBar() {
   const np = $('np');
   $('repeatBtn').classList.toggle('on', !!S.repeat);
   if (!t) { np.innerHTML = ''; np.dataset.sig = ''; $('devBtn').innerHTML = ic('speaker') + '<span>No speakers</span>'; return; }
-  const art = spArtFor(t);
-  const sig = [art, t.title, t.artist, t.source, t.name, t.state, t.status].join('|');
+  const sig = [t.art, t.title, t.artist, t.source, t.name, t.state, t.status].join('|');
   if (np.dataset.sig !== sig) {
     np.dataset.sig = sig;
-    np.innerHTML = `<div class="thumb" style="${art ? 'background-image:' + cssUrl(art) : ''}">${art ? '' : ic('note')}</div>
+    np.innerHTML = `<div class="thumb" style="${t.art ? 'background-image:' + cssUrl(t.art) : ''}">${t.art ? '' : ic('note')}</div>
       <div style="min-width:0"><div class="title">${esc(t.title || statusText(t) || (t.state==='play' ? (t.source || 'Playing') : 'Nothing playing'))}</div>
       <div class="artist">${esc(t.artist || (t.title && t.source) || t.name)}</div></div>`;
   }
@@ -1028,21 +969,12 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (document.querySelector('.scrim')) return closeModals();
     if (document.querySelector('.pop')) return closePops();
-    if (mode === 'sp') {
-      if (typing === $('spq') && $('spq').value) { $('spq').value = ''; spSearch(''); return; }
-      if (spNav.length > 1) return spBack();
-      if ($('spq').value) { $('spq').value = ''; spSearch(''); return; }
-    } else {
-      if (query) { setQuery(''); renderLibrary(); return; }
-      if (albumSel) return closeAlbum();
-    }
+    if (query) { setQuery(''); renderLibrary(); return; }
+    if (albumSel) return closeAlbum();
     if (typing) typing.blur();
     return;
   }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-    e.preventDefault(); const box = mode === 'sp' && S && S.spotify.connected ? $('spq') : mode === 'lib' ? $('q') : null;
-    if (box) { box.focus(); box.select(); } return;
-  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); $('q').focus(); $('q').select(); return; }
   if (typing || document.querySelector('.scrim')) return;
   const t = target();
   if (e.code === 'Space') { e.preventDefault(); $('ppBtn').click(); }
@@ -1053,465 +985,15 @@ document.addEventListener('keydown', e => {
     v.value = Math.max(0, Math.min(100, +v.value + (e.key === 'ArrowUp' ? 5 : -5))); v.dispatchEvent(new Event('input'));
   }
   else if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.altKey) { $('muteBtn').click(); }
-  else if (e.key === 'Enter' && !e.target.closest('button')) {
-    const r = document.querySelector((mode === 'sp' ? '#spBody' : '#libBody') + ' .row.sel');
-    if (r) mode === 'sp' ? spPlayRow(+r.dataset.si) : playList(shown, +r.dataset.i);
-  }
+  else if (e.key === 'Enter' && !e.target.closest('button')) { const r = document.querySelector('#libBody .row.sel'); if (r) playList(shown, +r.dataset.i); }
   else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !e.ctrlKey && !e.target.closest('input')) {
-    const rows = [...document.querySelectorAll((mode === 'sp' ? '#spBody' : '#libBody') + ' .row')]; if (!rows.length) return;
+    const rows = [...document.querySelectorAll('#libBody .row')]; if (!rows.length) return;
     e.preventDefault();
     const i = rows.findIndex(r => r.classList.contains('sel'));
     const n = rows[Math.max(0, Math.min(rows.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))];
     selectRow(n); n.scrollIntoView({block: 'nearest'});
   }
 });
-
-// ---------- Spotify ----------
-let mode = lsGet('mode') === 'sp' ? 'sp' : 'lib';
-let spNav = [{kind: 'home'}];
-let spData = {};
-let spShown = [];
-let spShuffle = lsGet('spShuffle') === '1';
-let spBusy = '';
-let spSig = '';
-let spUp = {key: '', at: 0, data: null, busy: false};
-const spKey = v => v.kind + ':' + (v.sid || '') + ':' + (v.q || '');
-const spCur = () => spNav[spNav.length - 1];
-const spCurData = () => spData[spKey(spCur())];
-const SP_DETAIL = ['playlist', 'album', 'artist', 'liked'];
-const KIND_LABEL = {playlist: 'Playlist', album: 'Album', artist: 'Artist', liked: 'Playlist'};
-const spThumb = url => `<div class="thumb" ${url ? `style="background-image:${cssUrl(url)}"` : ''}>${url ? '' : ic('note')}</div>`;
-const artistLinks = t => t.artists.length ? t.artists.map(a => a.id ? `<span class="link" data-artist="${esc(a.id)}">${esc(a.name)}</span>` : esc(a.name)).join(', ') : '';
-
-$('spPlay').innerHTML = ic('play');
-$('spShuffleBtn').innerHTML = ic('shuffle');
-$('spqIcon').innerHTML = ic('search'); $('spqClear').innerHTML = ic('close');
-
-function setMode(m) {
-  mode = m; lsSet('mode', m);
-  $('libPane').hidden = m !== 'lib'; $('spPane').hidden = m !== 'sp';
-  $('mainScroll').scrollTop = 0;
-  if (m === 'lib') { renderLibrary(); return; }
-  if (S && S.spotify.connected) spLoad(spCur());
-  renderSpotify();
-}
-const modeTabs = () => `<div class="mtabs"><button data-mode="lib" class="${mode === 'lib' ? 'on' : ''}">Your music</button><button data-mode="sp" class="${mode === 'sp' ? 'on' : ''}">Spotify</button></div>`;
-const heroTop = back => `<div class="htop">${back ? `<button class="ibtn back" id="backBtn" title="Back (Esc)">${ic('back')}</button>` : ''}${modeTabs()}</div>`;
-
-const urlColors = {};
-function tintFromUrl(url) {
-  const set = rgb => document.documentElement.style.setProperty('--hero', rgb);
-  if (!url) return set('30,215,96'.split(',').map(v => Math.round(v * .45)).join(','));
-  if (urlColors[url]) return set(urlColors[url]);
-  const img = new Image(); img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    try {
-      const c = document.createElement('canvas'); c.width = c.height = 16;
-      const x = c.getContext('2d'); x.drawImage(img, 0, 0, 16, 16);
-      const d = x.getImageData(0, 0, 16, 16).data; let r = 0, g = 0, b = 0;
-      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
-      const n = d.length / 4;
-      urlColors[url] = [r, g, b].map(v => Math.round(v / n * 0.72)).join(',');
-      const h = (spCurData() || {}).head;
-      if (mode === 'sp' && h && h.art === url) set(urlColors[url]);
-    } catch (e) {}
-  };
-  img.src = url;
-}
-
-async function spLoad(v, more) {
-  const key = spKey(v), have = spData[key];
-  if (more) {
-    if (!have || have.next == null || have.loadingMore) return;
-    have.loadingMore = true;
-  } else {
-    if (have && !have.error && Date.now() - have._at < 120000) { renderSpotify(); return; }
-    spBusy = key; renderSpotify();
-  }
-  const j = await api('sp_browse', {kind: v.kind, sid: v.sid || '', q: v.q || '', offset: more ? have.next : 0}, true);
-  if (more) {
-    have.loadingMore = false;
-    if (j.ok) {
-      if (j.tracks) have.tracks.push(...j.tracks);
-      if (j.albums) have.albums.push(...j.albums);
-      have.next = j.next;
-    } else toast(j.error || 'Spotify did not answer');
-  } else {
-    if (spBusy === key) spBusy = '';
-    spData[key] = j.ok ? {...j, _at: Date.now()} : {error: j.error || 'Spotify did not answer', _at: 0};
-  }
-  if (spKey(spCur()) === key) renderSpotify();
-}
-function spOpen(kind, sid) {
-  const v = {kind, sid};
-  if (spKey(spCur()) === spKey(v)) return;
-  spNav.push(v); $('mainScroll').scrollTop = 0; spLoad(v);
-}
-function spBack() {
-  if (spNav.length < 2) return;
-  spNav.pop();
-  const v = spCur();
-  if (v.kind === 'search') $('spq').value = v.q; else if (v.kind === 'home') $('spq').value = '';
-  $('spqClear').hidden = !$('spq').value;
-  $('mainScroll').scrollTop = 0; spLoad(v);
-}
-function spSearch(q) {
-  q = q.trim(); $('spqClear').hidden = !q;
-  if (spCur().kind === 'search' && spCur().q === q) return;
-  spNav = [{kind: 'home'}];                    // a new search starts from the top, like Spotify
-  if (q) spNav.push({kind: 'search', q});
-  $('mainScroll').scrollTop = 0; spLoad(spCur());
-}
-$('spq').addEventListener('input', e => { clearTimeout(timers.spq); timers.spq = setTimeout(() => spSearch(e.target.value), 350); });
-$('spq').addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(timers.spq); spSearch(e.target.value); } });
-$('spqClear').onclick = () => { $('spq').value = ''; spSearch(''); $('spq').focus(); };
-function setSpShuffle(v) { spShuffle = v; lsSet('spShuffle', v ? '1' : '0'); $('spShuffleBtn').classList.toggle('on', v); }
-setSpShuffle(spShuffle);
-$('spShuffleBtn').onclick = () => { setSpShuffle(!spShuffle); toast(spShuffle ? 'Shuffle on for Spotify' : 'Shuffle off for Spotify'); };
-
-function renderSpHero(v, d) {
-  const sp = S.spotify;
-  const back = sp.connected && spNav.length > 1;
-  let art = '', small = 'Spotify', title = 'Spotify', meta = '', round = false;
-  if (!sp.connected) { title = 'Connect Spotify'; meta = 'Play your playlists, albums and Liked Songs on your speakers'; }
-  else if (v.kind === 'home') { title = 'Your Spotify'; meta = sp.user ? `Signed in as <b>${esc(sp.user)}</b>` : ''; }
-  else if (v.kind === 'search') { small = 'Search'; title = `“${esc(v.q)}”`; meta = 'Songs, artists, albums and playlists on Spotify'; }
-  else {
-    const h = d && d.head;
-    small = KIND_LABEL[v.kind];
-    if (h) {
-      title = esc(h.name); art = h.art; round = v.kind === 'artist';
-      const bits = [];
-      if (h.sub && v.kind !== 'artist') bits.push(`<b>${esc(h.sub)}</b>`);
-      if (h.year) bits.push(esc(h.year));
-      if (h.total) bits.push(plural(h.total, 'song'));
-      meta = bits.join(' · ');
-      if (h.description) meta = `<div style="margin-bottom:6px">${esc(h.description)}</div>` + meta;
-    } else title = d && d.error ? 'Not available' : 'Loading…';
-  }
-  if (v && v.kind === 'liked') document.documentElement.style.setProperty('--hero', '62,32,140');
-  else tintFromUrl(v && SP_DETAIL.includes(v.kind) ? art : '');
-  const liked = v && v.kind === 'liked';
-  $('hero').innerHTML = heroTop(back) + `<div class="hero-art ${round ? 'round' : ''} ${liked ? 'liked' : ''}" ${art ? `style="background-image:${cssUrl(art)}"` : ''}>${art ? '' : ic(liked ? 'heart' : 'note')}</div>
-    <div style="min-width:0"><small>${small}</small><h1 class="${title.length > 22 ? 'long' : ''}">${title}</h1><div class="meta">${meta}</div></div>`;
-}
-
-function spCard(c) {
-  const isLiked = c.kind === 'liked';
-  const sub = c.kind === 'playlist' ? (c.sub ? 'By ' + c.sub : 'Playlist') : c.kind === 'album' ? [c.year, c.sub].filter(Boolean).join(' · ') : c.kind === 'liked' ? 'Your liked songs' : 'Artist';
-  return `<div class="card-a" data-k="${c.kind}" data-sid="${esc(c.id)}" data-uri="${esc(c.uri)}" title="${esc(c.name)}">
-    <div class="cover ${c.kind === 'artist' ? 'round' : ''} ${isLiked ? 'liked' : ''}" ${c.art ? `style="background-image:${cssUrl(c.art)}"` : ''}>${c.art ? '' : ic(isLiked ? 'heart' : c.kind === 'album' ? 'album' : 'note')}<button class="ap" data-cardplay title="Play">${ic('play')}</button></div>
-    <div class="at">${esc(c.name)}</div><div class="aa">${esc(sub)}</div></div>`;
-}
-const spGrid = list => `<div class="grid">${list.map(spCard).join('')}</div>`;
-const spSec = (title, extra = '') => `<div class="sec"><h2>${title}</h2>${extra ? `<small>${extra}</small>` : ''}</div>`;
-function spTable(tracks, showAlbum = true) {
-  spShown = tracks;
-  return `<div class="table"><div class="thead"><div class="r">#</div><div>Title</div><div>${showAlbum ? 'Album' : ''}</div><div class="r">Time</div></div>
-    ${tracks.map((t, i) => `<div class="row ${t.playable ? '' : 'dis'}" data-si="${i}" ${t.playable ? '' : 'title="Spotify can\'t play this here"'}>
-      <div class="n"><span class="num">${i + 1}</span><span class="play" title="Play">${ic('play')}</span></div>
-      <div class="t">${spThumb(t.art)}<div class="tt"><div class="title">${esc(t.title)}</div><div class="artist">${artistLinks(t)}</div></div></div>
-      <div class="al">${showAlbum && t.album_id ? `<span class="link" data-salbum="${esc(t.album_id)}">${esc(t.album)}</span>` : esc(showAlbum ? t.album : '')}</div>
-      <div class="d r">${t.duration ? fmt(t.duration) : ''}</div></div>`).join('')}</div>`;
-}
-
-function spSetupHtml() {
-  const r = S.spotify.redirect;
-  return `<div class="setup">
-    <div class="step"><b>1</b><div><h4>Create a Spotify app (one time)</h4>
-      <p>Open the Spotify developer dashboard, log in with your Spotify account, accept the terms and press <b>Create app</b>. Any name and description will do, for example “Audio Pro Control”.</p>
-      <button class="pill ghost small" data-spdash>${ic('open')}Open developer.spotify.com</button></div></div>
-    <div class="step"><b>2</b><div><h4>Add this Redirect URI</h4>
-      <p>Paste it under <b>Redirect URIs</b> and press <b>Add</b>. Under <b>Which API/SDKs are you planning to use?</b> tick <b>Web API</b>, agree to the terms and press <b>Save</b>.</p>
-      <div class="copyline"><code>${esc(r)}</code><button class="pill light small" data-copy="${esc(r)}">Copy</button></div></div></div>
-    <div class="step"><b>3</b><div><h4>Paste the Client ID</h4>
-      <p>Your new app opens on its <b>Basic Information</b> page (or press <b>Settings</b>). Copy the <b>Client ID</b> and paste it here, then log in to Spotify in the browser tab that opens.</p>
-      <form id="spForm" class="idrow"><input class="field" name="cid" placeholder="Client ID" autocomplete="off" spellcheck="false" value="${esc(S.spotify.client_id || '')}"><button class="pill solid">Connect</button></form></div></div>
-    <p class="fine">Spotify Premium is needed. You don't need the “Client secret”, and the app never sees your password. The sign-in stays on this PC and the app talks straight to Spotify. The music plays from Spotify on the speaker itself, so it keeps going even if this PC sleeps.</p>
-  </div>`;
-}
-function spConnectHtml() {
-  const e = S.spotify.error;
-  return `<div class="empty"><div class="big">${ic('note')}</div><h2>${e ? 'Sign in to Spotify again' : 'Almost there'}</h2>
-    <p>${esc(e || 'Press Connect, log in to Spotify in the browser tab that opens, and press Agree.')}</p>
-    <button class="pill solid" data-spconnect>Connect Spotify</button>
-    <div style="margin-top:16px;font-size:13px;color:var(--muted)"><button class="link" data-spforget>Use a different Client ID</button></div></div>`;
-}
-function playOnHtml() {
-  const t = target();
-  return t ? `Plays on <b>${esc(groupName(t))}</b>` : '';
-}
-
-function renderSpotify() {
-  if (mode !== 'sp' || !S) return;
-  const sp = S.spotify, body = $('spBody');
-  $('spBar').hidden = !sp.connected;
-  if (!sp.configured || !sp.connected) {
-    renderSpHero(null, null);
-    body.innerHTML = sp.configured ? spConnectHtml() : spSetupHtml();
-    spShown = [];
-    return;
-  }
-  const v = spCur(), key = spKey(v), d = spData[key];
-  renderSpHero(v, d);
-  const detail = SP_DETAIL.includes(v.kind);
-  $('spPlay').hidden = !detail || !!(d && d.error); $('spShuffleBtn').hidden = !detail;
-  $('spOn').innerHTML = playOnHtml();
-  spSyncPlayBtn();
-  if (!d) { spShown = []; body.innerHTML = '<div class="loading"><div class="spinner"></div>Asking Spotify…</div>'; return; }
-  if (d.error) {
-    spShown = [];
-    body.innerHTML = `<div class="empty"><div class="big">${ic('note')}</div><h2>Spotify didn't answer</h2><p>${esc(d.error)}</p><button class="pill light" data-spretry>Try again</button></div>`;
-    return;
-  }
-  const more = d.next != null ? `<div class="more-rows">${d.loadingMore ? '<div class="spinner" style="margin:auto"></div>' : '<button class="pill ghost small" data-spmore>Show more</button>'}</div>` : '';
-  let html = '';
-  if (v.kind === 'home') {
-    const liked = {kind: 'liked', id: 'liked', uri: '', name: 'Liked Songs', total: 0, art: ''};
-    html = spSec('Playlists') + spGrid([liked, ...d.playlists]);
-    if (d.albums.length) html += spSec('Albums', 'saved in your library') + spGrid(d.albums);
-    if (d.errors && d.errors.length) html += `<div class="note">${d.errors.map(esc).join('<br>')}</div>`;
-    html += `<div class="spfoot">Signed in to Spotify${sp.user ? ' as ' + esc(sp.user) : ''} · <button class="link" data-spdisc>Disconnect</button></div>`;
-    spShown = [];
-  } else if (v.kind === 'search') {
-    const none = !d.tracks.length && !d.artists.length && !d.albums.length && !d.playlists.length;
-    if (none) html = `<div class="more-rows">Nothing on Spotify matches “${esc(v.q)}”.</div>`;
-    if (d.tracks.length) html += spSec('Songs') + spTable(d.tracks); else spShown = [];
-    if (d.artists.length) html += spSec('Artists') + spGrid(d.artists);
-    if (d.albums.length) html += spSec('Albums') + spGrid(d.albums);
-    if (d.playlists.length) html += spSec('Playlists') + spGrid(d.playlists);
-  } else if (v.kind === 'artist') {
-    html = spSec('Albums and singles') + spGrid(d.albums) + more;
-    spShown = [];
-  } else {
-    const t = target();
-    if (d.locked) {
-      spShown = [];
-      html = `<div class="note">Spotify only lets apps list the songs in playlists you made or collaborate on. Press play to hear this one${t ? ' on <b>' + esc(groupName(t)) + '</b>' : ''}.</div>`;
-    } else if (!d.tracks.length) {
-      spShown = [];
-      html = `<div class="more-rows">${v.kind === 'liked' ? 'No liked songs yet.' : 'This is empty.'}</div>`;
-    } else html = spTable(d.tracks, v.kind !== 'album') + more;
-  }
-  body.innerHTML = html;
-  markSpRows();
-}
-
-function spNowUri() { const t = target(); return t && spUp.data && spUp.key.startsWith(t.id + '|') && spUp.data.now ? spUp.data.now.uri : ''; }
-function markSpRows() {
-  if (mode !== 'sp') return;
-  const uri = spNowUri(), t = target(), paused = !t || t.state !== 'play';
-  document.querySelectorAll('#spBody .row').forEach(r => {
-    const tr = spShown[+r.dataset.si]; if (!tr) return;
-    const cur = !!uri && tr.uri === uri;
-    if (r.classList.contains('cur') !== cur) {
-      r.classList.toggle('cur', cur);
-      r.querySelector('.n').innerHTML = (cur ? '<span class="eq"><i></i><i></i><i></i></span>' : `<span class="num">${+r.dataset.si + 1}</span>`) + `<span class="play" title="Play">${ic('play')}</span>`;
-    }
-    r.classList.toggle('paused', cur && paused);
-  });
-  spSyncPlayBtn();
-}
-function spContextUri() {
-  const v = spCur(), d = spCurData();
-  if (v.kind === 'liked') return 'liked';
-  return d && d.head ? d.head.uri : '';
-}
-function spPlayingHere() {
-  const t = target(), ctx = spContextUri();
-  if (!t || !spUp.data || !spUp.key.startsWith(t.id + '|') || t.state === 'stop') return false;
-  if (ctx === 'liked') return !spUp.data.context && spShown.some(x => x.uri === spNowUri());
-  return !!ctx && spUp.data.context === ctx;
-}
-function spSyncPlayBtn() {
-  const t = target();
-  const on = spPlayingHere() && t && t.state === 'play';
-  if ($('spPlay').dataset.s !== String(on)) { $('spPlay').dataset.s = String(on); $('spPlay').innerHTML = ic(on ? 'pause' : 'play'); }
-}
-
-async function spStart(params) {
-  const t = needSpeaker(); if (!t) return;
-  toast(`Starting Spotify on ${groupName(t)}…`);
-  const slow = setTimeout(() => toast(`Checking that ${t.name} switched over…`, true), 3500);
-  const j = await api('sp_play', {id: t.id, shuffle: spShuffle, ...params});
-  clearTimeout(slow);
-  spAfterStart(t, j, () => spStart(params));
-  if (j.ok && j.need_device) spLinkModal(t, j.devices || [], params);
-}
-async function spTakeOver(t) {
-  toast(`Moving your Spotify to ${t.name}…`);
-  const j = await api('sp_takeover', {id: t.id});
-  spAfterStart(t, j, () => spTakeOver(t));
-  if (j.ok && j.need_device) spLinkModal(t, j.devices || [], {});
-}
-function spAfterStart(t, j, retry) {
-  toast(j.ok && j.woke === 'started' ? `Spotify on this PC woke ${t.name}.` : '');
-  spUp.at = 0; spUp.mm = null;
-  setTimeout(() => spUpdateUpNext(target(), true), 600);
-  if (!j.ok || j.need_device || !j.mismatch) return;
-  const name = esc(t.name);
-  let body;
-  if (j.idle && j.desktop === 'missing') body = `<p>${name} isn't signed in to your Spotify right now. A Spotify app on your home network has to hand it over the first time, and Spotify isn't installed on this PC.</p>
-    <p>Either start any music on ${name} once from Spotify on your phone, or install the Spotify app on this PC. It can stay closed; this app opens it in the background when a speaker needs waking.</p>`;
-  else if (j.idle) body = `<p>${name} isn't signed in to your Spotify right now, and Spotify on this PC couldn't wake it.</p>
-    <p>Check that Spotify on this PC is logged in to the same account (${esc(S.spotify.user || 'yours')}), or start any music on ${name} once from Spotify on your phone, then try again.</p>`;
-  else body = `<p>Spotify says it's playing ${j.spotify_title ? `<b>${esc(j.spotify_title)}</b>` : 'your music'} on ${name}, but the speaker is still playing ${j.speaker_title ? `<b>${esc(j.speaker_title)}</b>` : 'something else'}.</p>
-    <p>Something else is using the speaker's Spotify right now, usually another phone or another Spotify account (someone else in the family, say). Stop the music in that Spotify app, or pick another device there, then try again.</p>`;
-  const s = modal(`<h3>${name} didn't start your Spotify</h3>${body}
-    <div class="btns"><button class="pill ghost" data-x>Close</button><button class="pill solid" data-retry>Try again</button></div>`);
-  s.querySelector('[data-retry]').onclick = () => { s.remove(); retry(); };
-}
-function spLinkModal(t, devices, params) {
-  const s = modal(`<h3>Spotify can't see ${esc(t.name)}</h3>
-    <p>Spotify only lists speakers that are switched on and have been played to from your account. Open Spotify on your phone or PC, tap the devices button, and pick <b>${esc(t.name)}</b> once. After that, this app can start music on it.</p>
-    ${devices.length ? `<p>Or, if ${esc(t.name)} shows up in Spotify under another name, pick it:</p><div class="sources">${devices.map(d => `<button class="src" data-dev="${esc(d)}">${esc(d)}</button>`).join('')}</div>` : ''}
-    <div class="btns"><button class="pill ghost" data-x>Close</button><button class="pill solid" data-retry>Try again</button></div>`);
-  s.addEventListener('click', async e => {
-    const dev = e.target.closest('[data-dev]');
-    if (dev) { s.remove(); const j = await api('sp_link', {id: t.id, device: dev.dataset.dev}); if (j.ok) spStart(params); return; }
-    if (e.target.closest('[data-retry]')) { s.remove(); spStart(params); }
-  });
-}
-function spPlayRow(i) {
-  const v = spCur(), d = spCurData(), tr = spShown[i];
-  if (!tr || !tr.playable || !d) return;
-  if (v.kind === 'playlist' && d.head && !d.locked) return spStart({context: d.head.uri, offset_uri: tr.uri});
-  if (v.kind === 'album' && d.head) return spStart({context: d.head.uri, offset_uri: tr.uri});
-  const list = spShown.filter(x => x.playable);
-  spStart({uris: list.map(x => x.uri), offset_pos: list.indexOf(tr)});
-}
-function spShuffleStart(total) { return spShuffle && total > 1 ? {offset_pos: Math.floor(Math.random() * total)} : {}; }
-async function spPlayCard(kind, sid, uri, total) {
-  if (kind === 'liked') {
-    let d = spData[spKey({kind: 'liked'})];
-    if (!d || d.error) { const j = await api('sp_browse', {kind: 'liked'}); if (!j.ok) return; d = spData[spKey({kind: 'liked'})] = {...j, _at: Date.now()}; }
-    const list = d.tracks.filter(x => x.playable);
-    if (!list.length) { toast('No liked songs to play'); return; }
-    return spStart({uris: list.map(x => x.uri), offset_pos: spShuffle ? Math.floor(Math.random() * list.length) : 0});
-  }
-  if (!uri) return;
-  spStart({context: uri, ...(kind === 'artist' ? {} : spShuffleStart(total || 0))});
-}
-$('spPlay').onclick = () => {
-  const v = spCur(), d = spCurData(), t = target(); if (!d || !d.head && v.kind !== 'liked') return;
-  if (spPlayingHere() && t) { api('play_pause', {id: t.id}); return; }
-  if (v.kind === 'liked') {
-    const list = (d.tracks || []).filter(x => x.playable); if (!list.length) return;
-    return spStart({uris: list.map(x => x.uri), offset_pos: spShuffle ? Math.floor(Math.random() * list.length) : 0});
-  }
-  spPlayCard(v.kind, v.sid, d.head.uri, d.head.total);
-};
-function spRowMenu(tr, place) {
-  const m = popup(`<div class="label">${esc(tr.title)}</div>
-    <button data-a="play" ${tr.playable ? '' : 'disabled'}>${ic('play')}Play</button>
-    <button data-a="queue" ${tr.playable ? '' : 'disabled'}>${ic('queue')}Add to Spotify queue</button>
-    ${tr.album_id || (tr.artists[0] && tr.artists[0].id) ? '<hr>' : ''}
-    ${tr.album_id && !(spCur().kind === 'album') ? `<button data-a="album">${ic('album')}Go to album</button>` : ''}
-    ${tr.artists[0] && tr.artists[0].id ? `<button data-a="artist">${ic('speaker')}Go to artist</button>` : ''}`, 'menu', place);
-  m.onclick = async e => {
-    const a = e.target.closest('button')?.dataset.a; if (!a) return; closePops();
-    if (a === 'play') spPlayRow(spShown.indexOf(tr));
-    else if (a === 'queue') { const t = needSpeaker(); if (!t) return; const j = await api('sp_queue', {id: t.id, uri: tr.uri}); if (j.ok) toast(`“${tr.title}” added to the Spotify queue`); }
-    else if (a === 'album') spOpen('album', tr.album_id);
-    else if (a === 'artist') spOpen('artist', tr.artists[0].id);
-  };
-}
-function spCardMenu(c, place) {
-  const m = popup(`<div class="label">${esc(c.querySelector('.at').textContent)}</div>
-    <button data-a="play">${ic('play')}Play</button><button data-a="open">${ic(c.dataset.k === 'artist' ? 'speaker' : 'album')}Open</button>`, 'menu', place);
-  m.onclick = e => {
-    const a = e.target.closest('button')?.dataset.a; if (!a) return; closePops();
-    if (a === 'play') spPlayCard(c.dataset.k, c.dataset.sid, c.dataset.uri);
-    else spOpenCard(c);
-  };
-}
-function spOpenCard(c) { c.dataset.k === 'liked' ? spOpen('liked', '') : spOpen(c.dataset.k, c.dataset.sid); }
-
-$('spBody').addEventListener('click', async e => {
-  if (e.target.closest('[data-spdash]')) { api('sp_open'); toast('The Spotify developer page opens in your browser'); return; }
-  const cp = e.target.closest('[data-copy]');
-  if (cp) { try { await navigator.clipboard.writeText(cp.dataset.copy); cp.textContent = 'Copied'; setTimeout(() => cp.textContent = 'Copy', 1800); } catch (err) { toast('Select the address and copy it with Ctrl+C'); } return; }
-  if (e.target.closest('[data-spconnect]')) { spSignIn(await api('sp_connect')); return; }
-  if (e.target.closest('[data-spforget]')) { api('sp_forget'); return; }
-  if (e.target.closest('[data-spdisc]')) {
-    const s = modal(`<h3>Disconnect Spotify?</h3><p>The app forgets its Spotify sign-in on this PC. Music already playing on your speakers keeps going.</p>
-      <div class="btns"><button class="pill ghost" data-x>Cancel</button><button class="pill light" data-yes>Disconnect</button></div>`);
-    s.querySelector('[data-yes]').onclick = () => { s.remove(); api('sp_disconnect'); };
-    return;
-  }
-  if (e.target.closest('[data-spretry]')) { const v = spCur(); delete spData[spKey(v)]; spLoad(v); return; }
-  if (e.target.closest('[data-spmore]')) { spLoad(spCur(), true); renderSpotify(); return; }
-  const cpb = e.target.closest('[data-cardplay]');
-  if (cpb) { const c = cpb.closest('.card-a'); spPlayCard(c.dataset.k, c.dataset.sid, c.dataset.uri, 0); return; }
-  const card = e.target.closest('.card-a'); if (card) { spOpenCard(card); return; }
-  const ar = e.target.closest('[data-artist]'); if (ar) { spOpen('artist', ar.dataset.artist); return; }
-  const al = e.target.closest('[data-salbum]'); if (al) { spOpen('album', al.dataset.salbum); return; }
-  if (e.target.closest('.play')) { spPlayRow(+e.target.closest('.row').dataset.si); return; }
-  selectRow(e.target.closest('.row'));
-});
-$('spBody').addEventListener('submit', async e => {
-  if (e.target.id !== 'spForm') return;
-  e.preventDefault();
-  const btn = e.target.querySelector('.solid'); btn.disabled = true;
-  const j = await api('sp_setup', {client_id: e.target.cid.value.trim()});
-  btn.disabled = false;
-  spSignIn(j);
-});
-function spSignIn(j) {
-  if (!j || !j.ok || !j.url) return;
-  modal(`<div data-spwait><h3>Finish in your browser</h3><p>A Spotify page has opened in your web browser. Log in if it asks, then press <b>Agree</b>. This window updates by itself.</p>
-    <p>No page opened? <a class="link" style="color:#fff" href="${esc(j.url)}" target="_blank" rel="noopener">Open the Spotify sign-in page</a>.</p>
-    <p>If Spotify says <b>INVALID_CLIENT: Invalid redirect URI</b>, add <code style="user-select:all">${esc(S.spotify.redirect)}</code> to your app's Redirect URIs exactly as written, press Save, and try again.</p>
-    <div class="btns"><button class="pill ghost" data-x>Close</button></div></div>`);
-}
-$('spBody').addEventListener('dblclick', e => { if (e.target.closest('.link')) return; const r = e.target.closest('.row'); if (r) spPlayRow(+r.dataset.si); });
-$('spBody').addEventListener('contextmenu', e => {
-  const r = e.target.closest('.row'), c = e.target.closest('.card-a');
-  if (!r && !c) return;
-  e.preventDefault();
-  if (r) { selectRow(r); const tr = spShown[+r.dataset.si]; if (tr) spRowMenu(tr, atMouse(e)); }
-  else spCardMenu(c, atMouse(e));
-});
-$('mainScroll').addEventListener('scroll', () => {
-  if (mode !== 'sp') return;
-  const el = $('mainScroll'), d = spCurData();
-  if (d && d.next != null && !d.loadingMore && el.scrollTop + el.clientHeight > el.scrollHeight - 500) { spLoad(spCur(), true); }
-});
-
-function spArtFor(t) {
-  const d = spUp.data;
-  if (!t || t.art || !d || !d.now || !spUp.key.startsWith(t.id + '|') || d.now.title !== t.title) return t ? t.art : '';
-  return d.now.big || d.now.art || '';
-}
-function spUpWanted(t) { return !!(t && S.spotify && S.spotify.connected && t.online && t.source === 'Spotify Connect' && t.state !== 'stop'); }
-async function spUpdateUpNext(t, force) {
-  if (!spUpWanted(t)) { if (spUp.data || spUp.mm) { spUp = {key: '', at: 0, data: null, busy: false, mm: null}; renderNow(); markSpRows(); } return; }
-  const key = t.id + '|' + t.title;
-  if (spUp.busy || (!force && spUp.key === key && Date.now() - spUp.at < 30000)) return;
-  spUp.busy = true; spUp.key = key; spUp.at = Date.now();
-  const j = await api('sp_upnext', {id: t.id}, true);
-  spUp.busy = false;
-  spUp.data = j.ok && j.playing_here ? j : null;
-  if (j.ok && j.mismatch) {
-    // only call it a mismatch if it lasts: right after a song change the two may differ briefly
-    if (!spUp.mm || spUp.mm.key !== key) spUp.mm = {key, first: Date.now(), j};
-    else spUp.mm.j = j;
-    if (Date.now() - spUp.mm.first < 4000) setTimeout(() => spUpdateUpNext(target(), true), 5000);
-  } else spUp.mm = null;
-  renderNow(); renderBar(); markSpRows();
-}
-function spMismatchHtml(t) {
-  const m = spUp.mm;
-  if (!m || !m.key.startsWith(t.id + '|') || Date.now() - m.first < 4000) return '';
-  return `<div class="card warn"><h3>${ic('note')}Spotify and ${esc(t.name)} disagree</h3>
-    <p>Your Spotify says it's playing <b>${esc(m.j.spotify_title)}</b> here, but the speaker is playing <b>${esc(m.j.speaker_title)}</b>. Another phone or Spotify account is probably using the speaker.</p>
-    <button class="pill light small" data-takeover>Take over</button></div>`;
-}
-function spUpNextHtml(t) {
-  if (!spUp.data || !spUp.key.startsWith(t.id + '|') || !spUp.data.next.length) return '';
-  return `<div class="card"><h3>Next up <small>on Spotify</small></h3>${spUp.data.next.slice(0, 8).map(n =>
-    `<div class="up static">${spThumb(n.art)}<div style="min-width:0"><div class="title">${esc(n.title)}</div><div class="artist">${esc(n.artists.map(a => a.name).join(', '))}</div></div></div>`).join('')}</div>`;
-}
 
 // ---------- render loop ----------
 let lastToastTs = 0, libSig = '';
@@ -1522,40 +1004,13 @@ function render() {
   if (S.library.version !== lib.version) { lib.version = S.library.version; libSig = sig; loadLibrary(); }
   else if (libSig !== sig) { libSig = sig; renderLibrary(); }
   else markCurrentRow();
-  renderSpotifyState();
   if (S.toast && S.toast_ts > lastToastTs) { if (lastToastTs) toast(S.toast); lastToastTs = S.toast_ts; }
   if (!lastToastTs) lastToastTs = S.toast_ts || 1;
 }
 
-let spWasConnected = null, spNote = '';
-function renderSpotifyState() {
-  const sp = S.spotify, sig = JSON.stringify({...sp, note: ''});
-  if (sp.note !== spNote) { spNote = sp.note; if (spNote) toast(spNote, true); }
-  if (sig !== spSig) {
-    spSig = sig;
-    if (spWasConnected !== sp.connected) {
-      if (sp.connected) {
-        spData = {}; spNav = [{kind: 'home'}];
-        const w = document.querySelector('[data-spwait]');
-        if (w) { closeModals(); toast(`Spotify connected${sp.user ? ' as ' + sp.user : ''}`); }
-        if (mode === 'sp') spLoad(spCur());
-      }
-      spWasConnected = sp.connected;
-    }
-    renderSpotify();
-  }
-  if (mode === 'sp') { const on = playOnHtml(); if ($('spOn').innerHTML !== on) $('spOn').innerHTML = on; markSpRows(); }
-  spUpdateUpNext(target());
-}
-
 function connect() {
   const es = new EventSource('/api/events');
-  es.onmessage = ev => {
-    const first = !S;
-    S = JSON.parse(ev.data); recvAt = Date.now(); $('offline').classList.remove('show');
-    if (first) { $('libPane').hidden = mode !== 'lib'; $('spPane').hidden = mode !== 'sp'; }
-    render();
-  };
+  es.onmessage = ev => { S = JSON.parse(ev.data); recvAt = Date.now(); $('offline').classList.remove('show'); render(); };
   es.onerror = () => { $('offline').classList.add('show'); $('offlineText').textContent = 'Reconnecting to Audio Pro Control…'; };
 }
 connect();

@@ -1,4 +1,4 @@
-AUDIO PRO CONTROL 3.3  -  control your Audio Pro speakers from Windows
+AUDIO PRO CONTROL 3.4  -  control your Audio Pro speakers from Windows
 =====================================================================
 
 INSTALL / UPDATE
@@ -36,50 +36,6 @@ YOUR MUSIC (middle)
   - Shuffle and Repeat are in the player bar at the bottom.
   - Songs stream from this PC, so keep the app open while they play.
 
-SPOTIFY (middle, "Spotify" tab at the top)  - new in 3.1
-  Browse your playlists, Liked Songs and saved albums, search Spotify, and
-  play on the selected speaker or group. Needs Spotify Premium.
-
-  One-time setup (about two minutes, the app walks you through it):
-    1. Open developer.spotify.com/dashboard, log in with your Spotify account,
-       accept the terms, press "Create app". Any name, e.g. Audio Pro Control.
-    2. Under "Redirect URIs" add exactly:
-           http://127.0.0.1:47811/spotify/callback
-       (the app shows this with a Copy button), tick "Web API", Save.
-    3. Copy the app's "Client ID" into Audio Pro Control and press Connect.
-       A browser tab opens: log in to Spotify and press Agree.
-  You don't need the "Client secret". The sign-in is kept in
-  %APPDATA%\AudioProControl\spotify.json; "Disconnect" at the bottom of the
-  Spotify page removes it.
-
-  Using it:
-  - Double-click a song, or press the green play button on a playlist, album
-    or artist. Shuffle next to it applies when Spotify starts.
-  - Right-click a song: "Add to Spotify queue", "Go to album", "Go to artist".
-  - The speaker plays straight from Spotify, so the music keeps going even
-    if this PC sleeps. "Next up" on the right shows Spotify's queue.
-  - Grouped speakers: Spotify plays on the group's main speaker and the
-    others follow, like any other music.
-  - Idle speakers (3.3): an Audio Pro speaker that hasn't played Spotify for
-    a while is signed out of your account, and only a Spotify app on your
-    home network can hand it back in. If a speaker doesn't respond, the app
-    opens the Spotify app on this PC (minimised) to do that, then tries
-    again. Install Spotify on this PC and log in with the same account; it
-    can stay closed otherwise. Without it, start something on the speaker
-    from Spotify on your phone once.
-  - "Spotify can't see <speaker>": Spotify only lists speakers that are on
-    and have been played to from your account. Pick the speaker once in the
-    Spotify app on your phone (devices button). If Spotify knows the speaker
-    by another name, pick that name in the same message.
-  - "<speaker> didn't switch to your Spotify" / "Spotify and <speaker>
-    disagree" (3.2): after starting, the app checks with the speaker itself.
-    If the speaker keeps playing something else, another phone or another
-    Spotify account is using it. Stop the music there (or pick another
-    device in that Spotify app), then press "Take over" or try again.
-  - Spotify's rules for personal developer apps: you can only see the songs
-    of playlists you made or collaborate on. Other playlists (e.g. Spotify's
-    own) still play with the play button. Searches show the top 10 of each kind.
-
 ON THE RIGHT
   - What is playing, the speaker's inputs (Wi-Fi, Bluetooth, Line in, RCA...)
     and, on speakers that report them, the presets saved on the speaker.
@@ -93,8 +49,7 @@ PLAYER BAR (bottom)
 
 KEYBOARD
   Space play/pause | Ctrl+Left/Right previous/next | Ctrl+Up/Down volume
-  M mute | Ctrl+F search (your music or Spotify) | Enter play highlighted song
-  Esc back / close
+  M mute | Ctrl+F search | Enter play highlighted song | Esc back / close
 
 Works with Spotify Connect, AirPlay etc. too: start music from your phone as
 usual and control or group it from here.
