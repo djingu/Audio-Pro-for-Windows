@@ -1,4 +1,4 @@
-AUDIO PRO CONTROL 3.5  -  control your Audio Pro speakers from Windows
+AUDIO PRO CONTROL 3.6  -  control your Audio Pro speakers from Windows
 =====================================================================
 
 INSTALL / UPDATE

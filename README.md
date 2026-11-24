@@ -3,7 +3,7 @@
 [![Latest release](https://img.shields.io/github/v/release/djingu/Audio-Pro-for-Windows?label=download&color=1ed760)](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-Control your **Audio Pro Wi-Fi speakers from Windows 11**: play, pause and set the volume, switch inputs, group speakers so they play the same music, and play the music files on your PC. The look is inspired by Spotify.
+Control your **Audio Pro Wi-Fi speakers from Windows 11**: play, pause and set the volume, switch inputs, group speakers so they play the same music, and play the music files on your PC. It has a black and silver look.
 
 Works with both Audio Pro speaker generations, and you can mix them in one group:
 
@@ -27,7 +27,7 @@ Works with both Audio Pro speaker generations, and you can mix them in one group
 
 ## Install
 
-1. Download **AudioProControl-3.5.zip** (or the newest version) from the [latest release](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest) and unzip it anywhere. (Or click the green **Code** button on this page → **Download ZIP**; it contains the same files.)
+1. Download **AudioProControl-3.6.zip** (or the newest version) from the [latest release](https://github.com/djingu/Audio-Pro-for-Windows/releases/latest) and unzip it anywhere. (Or click the green **Code** button on this page → **Download ZIP**; it contains the same files.)
 2. Double-click **Install.bat**. It also updates an older version.
    - If Windows asks whether to run it, choose **Run** (or **More info → Run anyway**).
    - If Python 3 isn't installed, the installer fetches it with `winget` (one time, about 30 MB).

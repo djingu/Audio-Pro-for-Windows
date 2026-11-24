@@ -7,11 +7,13 @@
 <link rel="icon" href="/app.ico">
 <style>
 :root{
-  --bg:#000; --panel:#121212; --panel2:#181818; --raise:#1f1f1f; --hover:#2a2a2a; --sel:#333;
+  --bg:#000; --panel:#0e0e0e; --panel2:#161616; --raise:#1e1e1e; --hover:#2a2a2a; --sel:#333;
   --pop:#282828; --line:rgba(255,255,255,.08);
   --text:#fff; --muted:#b3b3b3; --dim:#7a7a7a;
-  --accent:#1fdf64; --accent-hi:#3be477; --danger:#f15e6c; --warn:#f5a623;
-  --hero:42,107,74;
+  --accent:#d4d4d4; --accent-hi:#fff; --danger:#f15e6c; --warn:#f5a623;
+  --silver:linear-gradient(150deg,#fafafa 0%,#d9d9d9 45%,#a9a9a9 100%);
+  --silver-hi:linear-gradient(150deg,#fff 0%,#ececec 45%,#c4c4c4 100%);
+  --hero:52,52,52;
   --r:10px;
   font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;
   color-scheme:dark;
@@ -56,7 +58,7 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
   background-size:cover;background-position:center;box-shadow:0 4px 12px rgba(0,0,0,.35);position:relative;overflow:hidden}
 .room.off .tile{filter:grayscale(1)}
 .room-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
-.room.playing .room-name{color:var(--accent)}
+.room.playing .room-name{color:var(--accent);font-weight:600}
 .room-sub{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--danger);margin-right:6px;vertical-align:middle}
 .dot.wait{background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
@@ -72,8 +74,8 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .pill:active{transform:scale(.97)}
 .pill.ghost{border:1px solid rgba(255,255,255,.3)}
 .pill.ghost:hover{border-color:#fff;transform:scale(1.02)}
-.pill.solid{background:var(--accent);color:#000}
-.pill.solid:hover{background:var(--accent-hi);transform:scale(1.03)}
+.pill.solid{background:var(--silver);color:#000}
+.pill.solid:hover{background:var(--silver-hi);transform:scale(1.03)}
 .pill.light{background:#fff;color:#000}
 .pill.light:hover{transform:scale(1.03)}
 .pill.small{height:30px;padding:0 14px;font-size:13px}
@@ -100,8 +102,8 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .hero .back{position:absolute;top:14px;left:18px;background:rgba(0,0,0,.45);color:#fff}
 .hero .back:hover{background:rgba(0,0,0,.7)}
 .toolbar{display:flex;align-items:center;gap:14px;min-width:0;padding:20px 28px 12px;background:linear-gradient(180deg,rgba(var(--hero),.3),transparent 160px)}
-.bigplay{width:56px;height:56px;min-width:56px;aspect-ratio:1;border-radius:50%;background:var(--accent);color:#000;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .1s,background .15s}
-.bigplay:hover{transform:scale(1.05);background:var(--accent-hi)}
+.bigplay{width:56px;height:56px;min-width:56px;aspect-ratio:1;border-radius:50%;background:var(--silver);color:#000;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.9);transition:transform .1s,background .15s}
+.bigplay:hover{transform:scale(1.05);background:var(--silver-hi)}
 .bigplay svg{font-size:28px}
 .toggle{color:var(--muted);width:36px;height:36px;display:grid;place-items:center;position:relative}
 .toggle:hover{color:#fff}
@@ -151,16 +153,17 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .t .artist,.row .al,.row .d{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .link{cursor:pointer}
 .link:hover{color:#fff;text-decoration:underline}
-.row.cur .title{color:var(--accent)}
+.row.cur .title{color:#fff;font-weight:600}
+.row.cur{background:rgba(255,255,255,.07)}
 .row .d{font-variant-numeric:tabular-nums}
 .more-rows{color:var(--muted);text-align:center;padding:16px;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px;padding:0 16px 24px}
 .card-a{padding:12px;border-radius:8px;cursor:pointer;transition:background .2s;min-width:0;position:relative}
 .card-a:hover{background:var(--raise)}
 .card-a .cover{width:100%;aspect-ratio:1;border-radius:6px;background:#2a2a2a center/cover;display:grid;place-items:center;font-size:48px;color:var(--dim);box-shadow:0 8px 24px rgba(0,0,0,.4);margin-bottom:10px;position:relative}
-.card-a .ap{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#000;display:grid;place-items:center;font-size:22px;opacity:0;transform:translateY(8px);transition:.2s;box-shadow:0 8px 16px rgba(0,0,0,.4)}
+.card-a .ap{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;background:var(--silver);color:#000;display:grid;place-items:center;font-size:22px;opacity:0;transform:translateY(8px);transition:.2s;box-shadow:0 8px 16px rgba(0,0,0,.4)}
 .card-a:hover .ap{opacity:1;transform:none}
-.card-a .ap:hover{background:var(--accent-hi);transform:scale(1.05)}
+.card-a .ap:hover{background:var(--silver-hi);transform:scale(1.05)}
 .card-a .at{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-a .aa{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
 .empty{margin:40px auto;max-width:420px;text-align:center;padding:40px 28px;border-radius:14px;background:var(--panel2)}
@@ -246,10 +249,10 @@ input[type=range].vol{width:104px;flex:0 1 104px;min-width:60px}
 .drow.main .nm{color:var(--accent)}
 .check{width:22px;height:22px;border-radius:50%;border:2px solid #727272;display:grid;place-items:center;color:#000;transition:.15s}
 .check:hover{border-color:#fff}
-.check.on{background:var(--accent);border-color:var(--accent)}
+.check.on{background:var(--accent);border-color:var(--accent);color:#000}
 .check svg{font-size:15px;opacity:0}
 .check.on svg{opacity:1}
-.check.lock{background:rgba(31,223,100,.25);border-color:transparent;color:var(--accent);cursor:default}
+.check.lock{background:rgba(255,255,255,.15);border-color:transparent;color:var(--accent);cursor:default}
 .check.lock svg{opacity:1}
 .check.busy{border-color:var(--warn);border-top-color:transparent;animation:spin .8s linear infinite;background:none}
 .check.busy svg{opacity:0}
@@ -369,7 +372,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const cssUrl = u => "url('" + esc(String(u).replace(/['\\\s]/g, c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))) + "')";
 const fmt = s => { s = Math.max(0, Math.floor(s||0)); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=String(s%60).padStart(2,'0'); return h? `${h}:${String(m).padStart(2,'0')}:${x}` : `${m}:${x}`; };
 const hue = s => { let h=0; for (const c of String(s)) h=(h*31+c.charCodeAt(0))%360; return h; };
-const tileBg = name => { const h=hue(name); return `linear-gradient(135deg,hsl(${h} 55% 45%),hsl(${(h+40)%360} 60% 25%))`; };
+const tileBg = name => { const l = 30 + hue(name) % 30; return `linear-gradient(145deg,hsl(0 0% ${l + 22}%),hsl(0 0% ${l - 14}%))`; };
 const lsGet = k => { try { return localStorage.getItem(k); } catch(e) { return null; } };
 const lsSet = (k,v) => { try { localStorage.setItem(k,v); } catch(e) {} };
 const plural = (n, w) => `${n.toLocaleString()} ${w}${n === 1 ? '' : 's'}`;
@@ -690,7 +693,7 @@ function currentTrackId() { const t = target(); return t && t.local && t.queue ?
 const heroColors = {};
 function tintHero(artId) {
   const set = rgb => document.documentElement.style.setProperty('--hero', rgb);
-  if (!artId) return set('42,107,74');
+  if (!artId) return set('52,52,52');
   if (heroColors[artId]) return set(heroColors[artId]);
   const img = new Image();
   img.onload = () => {
@@ -699,8 +702,11 @@ function tintHero(artId) {
       const x = c.getContext('2d'); x.drawImage(img, 0, 0, 16, 16);
       const d = x.getImageData(0, 0, 16, 16).data; let r = 0, g = 0, b = 0;
       for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
-      const n = d.length / 4, k = 0.72;      // a little darker so white text stays readable
-      heroColors[artId] = [r, g, b].map(v => Math.round(v / n * k)).join(',');
+      const n = d.length / 4;
+      // grey, never colour: the cover's brightness, kept dark enough for white text
+      const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / n;
+      const v = Math.round(36 + lum * 0.22);
+      heroColors[artId] = [v, v, v].join(',');
       if (albumSel && lib.albumById[albumSel]?.artId === artId) set(heroColors[artId]);
     } catch (e) {}
   };

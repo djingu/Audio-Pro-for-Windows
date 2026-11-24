@@ -43,7 +43,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 APP_NAME = "Audio Pro Control"
-APP_VERSION = "3.5"
+APP_VERSION = "3.6"
 
 # Ports to try, in order. Override for testing with APC_PROBE="https:4443,http:80"
 DEFAULT_PROBES = [("https", 4443), ("http", 80), ("https", 443), ("https", 8443)]
